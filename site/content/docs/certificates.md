@@ -21,6 +21,16 @@ structure Certificate where
   nodes : List Node
   goals : List Nat
   mapping : List (BlankNode × Term) := []   -- the instance of a query's blank nodes
+  envelope : Option Envelope := none        -- version 2: what the certificate is about
+
+structure Envelope where
+  graph : String       -- Graph.digest of the data
+  query : String       -- Graph.digest of the query
+  rules : RulesRef     -- the rule set's id and rulesDigest
+  regime : String
+  checker : String     -- the package and version that wrote it
+  toolchain : String
+  thm : String         -- the theorem an acceptance stands for
 ```
 
 ## JSON
@@ -36,7 +46,23 @@ Every term is written in N-Triples syntax, so a certificate is readable on its o
    {"id": 4, "conclusion": ["<http://example.org/rex>", "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>", "<http://example.org/B>"], "rule": "rdfs9", "premises": [0, 3]}]}
 ```
 
-`Certificate.render` writes it and `Certificate.parse` reads it. `mapping` may be omitted. A literal may appear as a subject, because conclusions are generalized triples. Only `version` 1 exists. Reading JSON is untrusted: a malformed certificate is a parse error, and a wrong one fails the checker.
+`Certificate.render` writes it and `Certificate.parse` reads it. `mapping` may be omitted. A literal may appear as a subject, because conclusions are generalized triples. Reading JSON is untrusted: a malformed certificate is a parse error, and a wrong one fails the checker.
+
+## Version 2: the envelope
+
+Version 2 adds an `envelope` that says what the certificate is about:
+
+```json
+"envelope": {"graph": "sha256:6956dd56…", "query": "sha256:7317c98d…",
+             "rules": {"id": "rdfs", "digest": "sha256:3f141744…"}, "regime": "rdfs",
+             "checker": "leanrdf-elpi 0.4.0", "toolchain": "leanprover/lean4:v4.35.0",
+             "theorem": "checkQuery_sound"}
+```
+
+- `graph` and `query` are `Graph.digest`: `sha256:` and the SHA-256 of the graph's RDFC-1.0 canonical N-Quads. They do not depend on triple order or blank-node labels, and other RDFC-1.0 tools compute the same value.
+- `rules.digest` is `rulesDigest`: the SHA-256 of one line per rule (name, body patterns, head, guards), in list order. Any change to a rule changes it.
+
+The envelope is untrusted metadata. `checkQuery` never reads it, and no soundness theorem mentions it. A checker verifies it beside the proof by recomputing the digests from what it read (`Envelope.verify`). A wrong envelope can make a check fail, never pass. Both versions are read: version 1 has no envelope, and any other version is an error. `leanrdf-demo` writes version 2.
 
 ## What the checker accepts
 
@@ -67,6 +93,10 @@ theorem g_entails_q : g.RDFSEntails q := checkQueryB_sound (c := cert) (by nativ
 ```
 
 `native_decide` runs the compiled checker, so a theorem proved this way also trusts the Lean compiler. The library's own theorems never use it. It is meant for concrete data in tests and applications, where the alternative is a derivation written by hand.
+
+## Checking a certificate from the command line
+
+`leanrdf-check --data DATA --query QUERY --cert CERT.json --rules REGIME` reads a certificate written by any tool. It verifies the envelope of a version-2 certificate, then runs the checker under one of five regimes (`simple`, `rdf`, `rdfs`, `owl`, `el`). `checkRegime_sound` gives the regime's entailment from an acceptance. See [the command-line tools](/docs/cli/#leanrdf-check).
 
 ## CertifyingDatalog export
 

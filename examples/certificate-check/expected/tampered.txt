@@ -1,0 +1,7 @@
+LeanRDF check: 12 data triples, 1 query triples
+Certificate: 7 nodes, goals [6]
+Data digest: sha256:b69d5884b2f71a4f2f61519036708434e0e65d74cff6f9bb2a2788938aacb68c
+Query digest: sha256:402b7bd8008310801fff3b15f1c455eda149f26d76cd525cafcbc4a55bb162ac
+Envelope: verified (data, query, rules and regime match)
+Verdict: CERTIFICATE REJECTED: node 6: premises do not match the body of rdfs9
+# exit 2

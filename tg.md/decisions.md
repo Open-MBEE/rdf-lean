@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra, sparql-syntax, owl-rl, shacl-core, owl-el, statement-graphs]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra, sparql-syntax, owl-rl, shacl-core, owl-el, statement-graphs, certificate-check, rdf-canonicalization]
 ---
 # Decisions
 
@@ -1069,3 +1069,125 @@ LeanRDF's `toRDF` (the export; `export` is a Lean keyword) defines the RDF 1.2 f
 
 - motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]] {note: "same role towards tiramemsu"}
 - introduced_by:: [[changes#add-statement-graphs]]
+
+## A checker package without the search
+
+`leanrdf-check` is a package in `check/` that requires the core and `leanrdf-owl` and not lean-elpi. Its executable checks certificates and never searches.
+
+**Context.** Certificates are meant to travel between agents. The one that receives a certificate needs the checker, not the search, and should not have to build or trust lean-elpi.
+
+**Decision.** A seventh package. The core cannot hold the tool, because the OWL rules live in `leanrdf-owl`. `elpi/` cannot hold it either, because that would put lean-elpi into the trusted tool's build.
+
+**Consequences.** The program an auditor installs contains the checker, the parsers and the semantics. CI builds and tests it in its own job, and the release contract lists its lakefile.
+
+- motivated_by:: [[decisions#Elpi finds, Lean checks]] {weight: primary}
+- motivated_by:: [[decisions#Layers as packages in one repository]]
+- introduced_by:: [[changes#add-certificate-check]]
+
+## Regimes as a closed inductive with a soundness theorem
+
+`Regime` is `simple | rdf | rdfs | owl | el`. Each regime has its rule list, its entailment proposition and the name of its theorem. `checkRegime_sound` is one theorem over all five.
+
+**Context.** The checker is generic in its rule list. Reporting only "derivable under these rules" would leave the reader to work out which entailment that is.
+
+**Decision.** `checkRegime` dispatches to `checkQuery` with the regime's rules, and for `simple` it also decides that the query is well-formed. `checkRegime_sound` is a case split over `checkQuery_sound_simple`, `checkQuery_sound_rdf`, `checkQuery_sound`, `Derives.owl_sound_graph` and `Derives.el_sound_graph`. It is axiom-clean.
+
+**Consequences.** Every verdict names the entailment and the theorem. A certificate is checked only under the regime asked for, so an RDFS certificate under `simple` is rejected for its unknown rules.
+
+- motivated_by:: [[decisions#Layered interpretations with a core]]
+- introduced_by:: [[changes#add-certificate-check]]
+
+## One verdict vocabulary for every tool
+
+The JSON `verdict` is one of `proven`, `unknown`, `rejected`, `input-error`, `inconsistent` or `refuted`, with exit codes 0 to 5 in that order.
+
+**Context.** Agents branch on verdicts. If later tools renamed verdicts or reused exit codes, every agent integration would break.
+
+**Decision.** `LeanRDF.Check.Verdict` fixes all six verdicts now. `leanrdf-check` produces only `proven`, `rejected` and `input-error`. `inconsistent` and `refuted` are reserved for the planned changes `add-inconsistency-certificates` and `add-countermodels`.
+
+**Consequences.** `unknown` is never `refuted`, which carries the demo's rule into the machine-readable protocol.
+
+- motivated_by:: [[decisions#Demo never claims non-entailment]] {weight: primary}
+- introduced_by:: [[changes#add-certificate-check]]
+
+## Turtle by extension in the checker
+
+`leanrdf-check` reads data and query files ending in `.ttl` as Turtle, and every other file as N-Triples.
+
+**Context.** Agents keep knowledge in Turtle more often than in N-Triples. Certificates use N-Triples terms either way.
+
+**Decision.** The extension picks the parser. A wrong parse cannot make a wrong certificate pass: the theorem is about the parsed graph, and the report prints its size.
+
+**Consequences.** The checker accepts the same files as the other tools, except that it does not read datasets.
+
+- motivated_by:: [[decisions#N-Triples first, native Turtle later]]
+- introduced_by:: [[changes#add-certificate-check]]
+
+## The envelope is untrusted metadata
+
+A version-2 certificate's envelope names the data, query and rule digests, the regime, the theorem, the checker and the toolchain. The checker never reads it; `leanrdf-check` verifies it beside the proof by recomputing the digests.
+
+**Context.** A certificate alone does not say which graph it is about, so a proof could be presented as being about other data. Binding it to its data must not enlarge what a proof trusts.
+
+**Decision.** `Certificate.envelope` is an `Option Envelope` that `checkQuery` ignores. `Envelope.verify` compares the recomputed digests and the regime, and `leanrdf-check` rejects on the first mismatch before it checks the proof. `checkQuery_sound` and `checkRegime_sound` are unchanged.
+
+**Consequences.** A wrong envelope can make a check fail, never pass. A bug in SHA-256 or RDFC-1.0 could reject a good certificate or bind a proof to the wrong name. It cannot make a wrong proof pass, because the proven statement is about the graph that was parsed.
+
+Rejected: a `checkQuery` that takes a digest. That would put hashing into the soundness statement for no gain.
+
+- motivated_by:: [[decisions#Elpi finds, Lean checks]] {weight: primary}
+- motivated_by:: [[decisions#Own certificate format with a Datalog export]]
+- introduced_by:: [[changes#add-certificate-envelope]]
+
+## Digests over RDFC-1.0 canonical N-Quads
+
+`Graph.digest` and `Dataset.digest` are `sha256:` and the lower-case hexadecimal SHA-256 of the RDFC-1.0 canonical N-Quads. A graph is a dataset with only a default graph.
+
+**Context.** Two parties must compute the same identity for the same data, independently and with other tools. Input bytes change with triple order, and canonical N-Triples changes with blank-node labels.
+
+**Decision.** The identity of RDFC-1.0 §4 and of Verifiable Credentials Data Integrity. A future algorithm for RDF 1.2 triple terms would use another prefix, and `sha256:` keeps its meaning.
+
+**Consequences.** Digests ignore triple order and blank-node labels, and other RDFC-1.0 tools reproduce them on data without triple terms. For a graph without blank nodes, the digest is the SHA-256 of its sorted N-Triples lines.
+
+- motivated_by:: [[decisions#Canonical N-Triples output]]
+- introduced_by:: [[changes#add-certificate-envelope]]
+
+## RDFC-1.0 written in the core, with an isomorphism theorem
+
+`LeanRDF.Canon` implements RDFC-1.0 in Lean, following the Recommendation's sections. The relabeling is a composition of swaps, so `canonical_iso` proves that the canonical dataset is isomorphic to its input.
+
+**Context.** The core has no dependencies, and no Lean library implements RDFC-1.0. What matters for naming soundness is that canonicalization never merges two blank nodes. Canonicity, equal output for isomorphic input, depends on the hash order.
+
+**Decision.** `canonicalLabels` returns the canonical issue order. The relabeling swaps the `i`-th blank node's current image with `_:c14n<i>`, one by one (`swapsFor`). A composition of swaps is a bijection (`applySwaps_bijective`), so `canonicalLabels_injective` and `canonical_iso` hold for every labeling and need no proof about the hashing. N-degree hashing counts its work, which is calls and permutations, and fails past `10000 + 100·n`. The W3C poison graphs that are computable need 3,348 units; the 10-clique needs far more.
+
+**Consequences.** The proven part covers every input. Canonicity is tested on the W3C suite. Relabeling costs O(n) swaps per blank-node occurrence, which is fine for certificate-sized graphs.
+
+- motivated_by:: [[decisions#Dependency-free core package]] {weight: primary}
+- introduced_by:: [[changes#add-certificate-envelope]]
+
+## Rules digest from a canonical rendering
+
+`rulesDigest` is the SHA-256 of one line per rule: name, body patterns, head and guards, in list order. Terms are written in N-Triples syntax and variables as `?name`.
+
+**Context.** An envelope must name the exact rule set a certificate was checked under. Once users can add rules, a regime name alone would be ambiguous.
+
+**Decision.** `Rule.render` and `rulesDigest` in `LeanRDF.Cert.Envelope`. The envelope's `rules.id` is the regime name, and `rules.digest` is checked against the regime's rule list.
+
+**Consequences.** Any change to a rule, or to the order of the rules, changes the digest. A certificate written before such a change is rejected with `envelope: rules digest mismatch`, and `--emit-envelope` re-binds it after a successful check.
+
+- motivated_by:: [[decisions#Regimes as a closed inductive with a soundness theorem]]
+- introduced_by:: [[changes#add-certificate-envelope]]
+
+## Version 2 alongside version 1
+
+Certificates are read in versions 1 and 2. Version 2 requires an envelope; version 1 has none and is reported as unbound.
+
+**Context.** Version-1 certificates exist: corpora, examples and other tools' output. They must keep checking.
+
+**Decision.** `Certificate.ofJson` accepts both versions and rejects every other one. `toJson` writes version 2 exactly when there is an envelope. `leanrdf-demo` writes version 2. `leanrdf-check --emit-envelope` upgrades a version-1 certificate after a successful check.
+
+**Consequences.** Version 1 is read forever. A version-1 certificate proves the same theorem as before, but says nothing about which file it was made for.
+
+- motivated_by:: [[decisions#Own certificate format with a Datalog export]]
+- introduced_by:: [[changes#add-certificate-envelope]]
+

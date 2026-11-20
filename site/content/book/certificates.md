@@ -64,3 +64,18 @@ The tests tamper with certificates in every way a buggy search could: unknown ru
 ## Exchange formats
 
 Certificates serialize to JSON, with terms written in N-Triples syntax so a certificate reads without tooling. `toDatalog` exports the same proof as a [CertifyingDatalog](https://github.com/knowsys/CertifyingDatalog) `GraphProblemInput`, so an independently verified Datalog checker can re-check it.
+
+## Which data a certificate is about
+
+A proof DAG says how a conclusion follows, but not from which graph. Version-2 certificates carry an envelope with the **digest** of the data and of the query. The digest is the SHA-256 of the graph's canonical N-Quads under W3C RDFC-1.0, which `LeanRDF.Canon` implements:
+
+```lean
+#eval (Graph.ofList [...]).digest   -- .ok "sha256:…"
+```
+
+Canonicalization renames blank nodes to `_:c14n0`, `_:c14n1`, … by hashing their neighbourhoods, then sorts the lines. So two files with the same triples in another order, or with other blank-node labels, give the same digest, and adding one triple changes it. `leanrdf-check` recomputes the digests and rejects a certificate checked against other data, even when its proof would pass.
+
+What is proven about it, and what is tested:
+- `canonical_iso` proves that the canonical dataset is isomorphic to its input. The relabeling is built from swaps, so it is a bijection on blank nodes whatever order the hashes chose.
+- That isomorphic inputs get the *same* labels depends on the hashes, and it is tested on the W3C rdf-canon suite: 86 tests, poison graphs included.
+- The envelope never enters the checker, so none of this is in the trusted base of a proof. A bug here could reject a good certificate, never accept a wrong one.

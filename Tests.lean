@@ -23,6 +23,7 @@ import Tests.Entailment.Propositions
 import Tests.Entailment.Axioms
 import Tests.Cert.Check
 import Tests.Cert.Axioms
+import Tests.Cert.Envelope
 import Tests.Turtle.Iso
 import Tests.Turtle.Parse
 import Tests.Turtle.Rdf12
@@ -35,4 +36,7 @@ import Tests.Datasets.TriG
 import Tests.Datasets.W3C
 import Tests.Xsd.Values
 import Tests.Text.Regex
+import Tests.Text.Hash
+import Tests.Canon.Scenarios
+import Tests.Canon.W3C
 import Tests.Guide.Core

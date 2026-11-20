@@ -1,0 +1,19 @@
+{
+ "version": 1,
+ "mapping": [],
+ "goals": [
+  0
+ ],
+ "nodes": [
+  {
+   "id": 0,
+   "conclusion": [
+    "<http://example.org/a>",
+    "<http://example.org/partOf>",
+    "<http://example.org/c>"
+   ],
+   "rule": "fact",
+   "premises": []
+  }
+ ]
+}

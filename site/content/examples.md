@@ -156,9 +156,11 @@ Certificate: 6 nodes, goals [1, 4, 5]
   [3] <http://example.org/tom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Cat>  (fact)
   [4] <http://example.org/bob> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Person>  (rdfs2 [2, 1])
   [5] <http://example.org/tom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Mammal>  (rdfs9 [0, 3])
-Certificate written to cert.json
+Certificate written to cert.json (version 2, data digest sha256:6956dd560aa479b53c85fca2ac31307e0cdd97abef70bcf6d105e970b8851156)
 Verdict: ENTAILED. The certificate was accepted by the verified checker (compiled).
 ```
+
+The certificate is version 2: its envelope carries the digests of the data and the query, so `leanrdf-check` rejects it if it is checked against any other data (see [`examples/certificate-check/`](https://github.com/Volland/rdf-lean/tree/main/examples/certificate-check)).
 
 <figure><img src="{{BASE}}/assets/pets-graph.svg" alt="The pet ontology with the two derived triples"><figcaption>The two dashed triples are nodes 4 and 5 of the certificate.</figcaption></figure>
 

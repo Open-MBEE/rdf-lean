@@ -1,7 +1,7 @@
 ---
 title: Packages and installation
 order: 2
-summary: The six Lake packages, what each one contains and requires, and how to depend on them from your own project.
+summary: The seven Lake packages, what each one contains and requires, and how to depend on them from your own project.
 ---
 # Packages and installation
 
@@ -9,14 +9,15 @@ LeanRDF is split into packages so that you build only what you use. A Lake `requ
 
 | Package | Directory | Requires | Contents |
 |---|---|---|---|
-| `leanrdf` | `.` | nothing | RDF terms, triples, graphs and datasets; N-Triples, N-Quads, Turtle and TriG; XSD values; the RDF 1.2 model theory; the 80 RDFS rules with soundness proofs; triple terms and reification; certificates and the verified checker; a regex engine |
+| `leanrdf` | `.` | nothing | RDF terms, triples, graphs and datasets; N-Triples, N-Quads, Turtle and TriG; XSD values; the RDF 1.2 model theory; the 80 RDFS rules with soundness proofs; triple terms and reification; RDFC-1.0 canonicalization and graph digests; certificates, their envelopes and the verified checker; SHA-256 and a regex engine |
 | `leanrdf-sparql` | `sparql/` | `leanrdf` | the SPARQL 1.1 algebra, its semantics, an evaluator proven to compute it, the parser, result formats and `leanrdf-sparql` |
 | `leanrdf-owl` | `owl/` | `leanrdf` | the OWL 2 RDF-Based conditions the rules need, 60 OWL 2 RL rules and 10 EL rules with soundness proofs |
 | `leanrdf-shacl` | `shacl/` | `leanrdf` | the SHACL Core semantics, a validator proven to compute it, the shapes reader, the report and `leanrdf-shacl` |
 | `leanrdf-statements` | `statements/` | `leanrdf` | tiramemsu's bitemporal statement records, their exact RDF 1.2 export and decoder, the Statement Graph criterion, the export kernel, history closure, the quoting view and `leanrdf-sg` |
+| `leanrdf-check` | `check/` | `leanrdf`, `leanrdf-owl` | the regimes `simple`, `rdf`, `rdfs`, `owl` and `el` under `checkRegime_sound`, the verdict vocabulary, envelope verification and `leanrdf-check`; no search |
 | `leanrdf-elpi` | `elpi/` | `leanrdf`, `leanrdf-owl`, lean-elpi v0.3.3 | Elpi saturation from the proven rules, certificates from closures, `leanrdf-demo`, `leanrdf-oxilite` and `leanrdf-classify` |
 
-All packages use Lean 4.35.0, are version 0.3.1 and are licensed MIT OR Apache-2.0.
+All packages use Lean 4.35.0, are version 0.4.0 and are licensed MIT OR Apache-2.0.
 
 ## Depending on LeanRDF
 
@@ -36,7 +37,7 @@ require «leanrdf-statements» from git "https://github.com/Volland/rdf-lean" @ 
 require «leanrdf-elpi» from git "https://github.com/Volland/rdf-lean" @ "main" / "elpi"
 ```
 
-Use the same `lean-toolchain` as LeanRDF (`leanprover/lean4:v4.35.0`), then run `lake update` and `lake build`. Pin a commit hash instead of `main` for reproducible builds. The tag `v0.1.0` marks the first release, which had the core and Elpi packages only; `v0.2.0` moved every package to RDF 1.2, `v0.3.0` added `leanrdf-statements`, and `v0.3.1` aligned it with tiramemsu.
+Use the same `lean-toolchain` as LeanRDF (`leanprover/lean4:v4.35.0`), then run `lake update` and `lake build`. Pin a commit hash instead of `main` for reproducible builds. The tag `v0.1.0` marks the first release, which had the core and Elpi packages only; `v0.2.0` moved every package to RDF 1.2, `v0.3.0` added `leanrdf-statements`, `v0.3.1` aligned it with tiramemsu, and `v0.4.0` added `leanrdf-check` and certificate envelopes.
 
 ## Imports
 

@@ -5,7 +5,7 @@ summary: Every executable, its arguments, input formats, output and exit codes.
 ---
 # Command-line tools
 
-Six executables ship with LeanRDF. Run them with `lake exe NAME` in their package directory, or call the binary in `.lake/build/bin/` after `lake build`. They share one convention for exit codes:
+Seven executables ship with LeanRDF. Run them with `lake exe NAME` in their package directory, or call the binary in `.lake/build/bin/` after `lake build`. They share one convention for exit codes:
 
 | Code | Meaning |
 |---|---|
@@ -16,7 +16,7 @@ Six executables ship with LeanRDF. Run them with `lake exe NAME` in their packag
 
 A `1` is never a claim that something is false. LeanRDF proves that certified things hold, but its rules are not proven complete, so "not derived" only reports that the search found nothing.
 
-Input formats are chosen by file extension: `.nt` is N-Triples, `.nq` N-Quads, `.trig` TriG, and anything else is read as Turtle with the file's `file://` path as base IRI. The demo reads N-Triples only.
+Input formats are chosen by file extension: `.nt` is N-Triples, `.nq` N-Quads, `.trig` TriG, and anything else is read as Turtle with the file's `file://` path as base IRI. The demo reads N-Triples only; `leanrdf-check` reads Turtle for `.ttl` and N-Triples otherwise.
 
 ## leanrdf-demo
 
@@ -138,6 +138,38 @@ leanrdf-sg quote FILE.jsonl
 Works on statement records, one JSON object per line (see [Statement graphs](/docs/statements/)). `check` lists well-formedness violations as `eid N: NAME`, where `NAME` is `subject-position`, `object-position`, `self-reference`, `tx-interval`, `valid-interval`, `reserved-iri` or `reserved-predicate`, and adds dangling references and reference cycles as warnings. `export` writes the RDF 1.2 export in the view as canonical N-Triples; the default view is `--now` with no valid-time filter. `decode` reads such an export back and writes the records as JSON lines, or names the first triple that does not fit. `kernel` writes the export kernel and the reason each other record was removed. `quote` writes each kernel record as a nested triple term.
 
 Exit codes: `0` success, and for `check` well formed, possibly with warnings; `1` `check` or `export` found violations; `2` `decode` rejected its input; `3` an unreadable file or a usage error.
+
+## leanrdf-check
+
+```
+leanrdf-check --data DATA --query QUERY --cert CERT.json [--rules simple|rdf|rdfs|owl|el] [--json] [--emit-envelope OUT.json]
+```
+
+Package `check/`. Checks a certificate that someone else wrote, with the verified checker and nothing else: the package does not depend on lean-elpi, and the tool never searches. `--rules` picks the regime (`rdfs` by default), and with it the rule list and the theorem an acceptance stands for:
+
+| Regime | Rules | Theorem | Entailment |
+|---|---|---|---|
+| `simple` | none (facts only; the query must be well-formed) | `checkQuery_sound_simple` | `SimpleEntails` |
+| `rdf` | `rdfRules` | `checkQuery_sound_rdf` | `RDFEntails` |
+| `rdfs` | `rdfsRules` | `checkQuery_sound` | `RDFSEntails` |
+| `owl` | `owlRules` | `Derives.owl_sound_graph` | `OWLEntails` |
+| `el` | `owlELRules` | `Derives.el_sound_graph` | `OWLEntails` |
+
+All five are combined in one theorem, `LeanRDF.Check.checkRegime_sound`. Exit codes: `0` proven, `2` rejected (with the checker's reason), `3` input error. There is no `1`: a certificate is either accepted or not.
+
+Before the proof is checked, the envelope of a version-2 certificate is verified. The tool recomputes the digests of the data and the query it read and of the regime's rule list, and requires the envelope's regime to be the one in use. A mismatch is a rejection that names the field: `envelope: graph digest mismatch`, `envelope: query digest mismatch`, `envelope: rules digest mismatch` or `envelope: regime mismatch`. A version-1 certificate is checked as before, and the verdict says it is unbound. `--emit-envelope OUT.json` writes the accepted certificate as version 2, with the envelope filled from the check.
+
+`--json` writes one object with these fields:
+- `verdict`: `proven`, `rejected` or `input-error`. The vocabulary also reserves `unknown`, `inconsistent` and `refuted` for tools that search.
+- `exit`, `regime`, `theorem`, `nodes`, `goals`, `mapping` and `reason`.
+- `graph` and `query`: the digests.
+- `bound`: `true` when the envelope was verified, `false` for version 1.
+
+```json
+{"verdict":"proven","exit":0,"regime":"rdfs","theorem":"checkQuery_sound","nodes":7,"goals":[6],"dataTriples":12,"queryTriples":1,"graph":"sha256:b69d5884…","query":"sha256:402b7bd8…","bound":true}
+```
+
+See [`examples/certificate-check/`](https://github.com/Volland/rdf-lean/tree/main/examples/certificate-check).
 
 ## Scripts
 

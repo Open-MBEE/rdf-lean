@@ -85,8 +85,13 @@ def run (a : Args) : IO (UInt32 × String) := do
     out := out ++ s!"Certificate: {cert.nodes.length} nodes, goals {cert.goals}\n"
     out := out ++ "\n".intercalate (cert.nodes.map nodeLine) ++ "\n"
     if let some p := a.certOut then
-      IO.FS.writeFile p cert.render
-      out := out ++ s!"Certificate written to {p}\n"
+      -- A version-2 certificate: the envelope binds it to this data, query and rule set.
+      let env ← match Envelope.build g q "rdfs" RDFS.rdfsRules "rdfs" "checkQuery_sound"
+          ("leanrdf-elpi " ++ release) with
+        | .ok e => pure e
+        | .error e => throw (3, out ++ s!"cannot digest the input: {e}")
+      IO.FS.writeFile p { cert with version := 2, envelope := some env }.render
+      out := out ++ s!"Certificate written to {p} (version 2, data digest {env.graph})\n"
     if let some p := a.datalogOut then
       IO.FS.writeFile p (toDatalog RDFS.rdfsRules g cert).pretty
       out := out ++ s!"CertifyingDatalog problem written to {p}\n"

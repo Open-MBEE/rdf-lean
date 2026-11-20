@@ -7,7 +7,7 @@ RDF 1.2 reification, and the Statement Graph results of the export-boundaries pa
 only the core. -/
 package «leanrdf-statements» where
   testDriver := "statementsTests"
-  version := v!"0.3.1"
+  version := v!"0.4.0"
   description := "Statement graphs for LeanRDF: bitemporal statement records, an exact RDF 1.2 export, and the Statement Graph export criterion and kernel, proven."
   keywords := #["rdf", "rdf-1.2", "statement-graph", "reification", "temporal", "verification"]
   homepage := "https://volland.github.io/rdf-lean/"

@@ -1,6 +1,6 @@
 ---
 title: Roadmap
-summary: What LeanRDF built, phase by phase: a v0.1 release, datasets and XSD values, certificates for oxilite's answers, SPARQL, OWL 2 RL, SHACL Core, OWL EL RDF 1.2 (v0.2) and statement graphs (v0.3), and what comes next.
+summary: What LeanRDF built, phase by phase: a v0.1 release, datasets and XSD values, certificates for oxilite's answers, SPARQL, OWL 2 RL, SHACL Core, OWL EL, RDF 1.2 (v0.2) and statement graphs (v0.3), proof-carrying answers (v0.4), and what comes next.
 ---
 # Roadmap
 
@@ -38,10 +38,22 @@ Each phase below is an OpenSpec change, implemented, archived (`openspec/changes
 | R3 RDF 1.2 semantics | `add-rdf12-semantics` | `leanrdf`, `leanrdf-elpi` | `rdf:dirLangString`, `rdfs:Proposition`, rdfs14 proven sound; simple and RDF regimes; `v0.2.0` | Done: 80 RDFS rules; 20 W3C RDF 1.2 semantics tests run (16 certified, 4 not derived), 9 listed as needing other datatypes |
 | S1 Statement graphs | `add-statement-graphs` | `leanrdf-statements` | tiramemsu's bitemporal records, an exact RDF 1.2 export, the export criterion and kernel proven; `v0.3.0` | Done: `decode_toRDF`, `toRDF_decode`, `criterion`, `kernel_greatest`; 406,901 small graphs checked exhaustively |
 | S2 tiramemsu alignment | `align-sg-with-tiramemsu` | `leanrdf-statements` | tiramemsu's `tm export --format sg-nt12` checked byte for byte; valid time as `tm:validFromMs`; `v0.3.1` | Done: 8 recorded tiramemsu exports decode and re-export exactly |
+| F1 Certificate check | `add-certificate-check` | `leanrdf-check` | A standalone checker with no search; five regimes under one theorem; a fixed verdict vocabulary with exit codes and JSON | Done: `checkRegime_sound`; a 21-certificate corpus |
+| F2 Certificate envelope | `add-certificate-envelope` | `leanrdf`, `leanrdf-check` | RDFC-1.0 and graph digests; certificate version 2 with an envelope that the checker verifies; `v0.4.0` | Done: the W3C rdf-canon suite passes (86 tests); `canonical_iso` |
 
 ## Proven, not just certified
 
 A certificate proves that a found answer is right. It cannot prove that nothing is missing. SPARQL needs both, because `OPTIONAL`, `MINUS`, `FILTER NOT EXISTS` and aggregates depend on what is absent. So LeanRDF's SPARQL evaluator is proven against the semantics, while reasoning answers are certified one at a time. Under RDFS or OWL reasoning a certified answer is proven sound, not complete.
+
+## Next
+
+The agentic roadmap (`docs/ROADMAP.md`) continues with:
+- inconsistency certificates and countermodels (v0.5);
+- a write gate for agent memory (v0.6);
+- proof-carrying memory over tiramemsu (v0.7);
+- policy decisions for tool calls (v0.8).
+
+Each is an OpenSpec change in `openspec/changes/`.
 
 ## Later
 

@@ -14,11 +14,12 @@ LeanRDF is RDF semantics you can prove. It is a set of Lean 4 libraries with a n
 
 | Package | Directory | Main theorem |
 |---|---|---|
-| `leanrdf` | `.` | `checkQuery_sound`: an accepted certificate gives `g.RDFSEntails q`, under 80 RDFS rules each proven sound; `checkQuery_sound_rdf` and `checkQuery_sound_simple` for the RDF and simple regimes |
+| `leanrdf` | `.` | `checkQuery_sound`: an accepted certificate gives `g.RDFSEntails q`, under 80 RDFS rules each proven sound; `checkQuery_sound_rdf` and `checkQuery_sound_simple` for the RDF and simple regimes; `canonical_iso`: RDFC-1.0 canonicalization never merges blank nodes |
 | `leanrdf-owl` | `owl/` | `Derives.owl_sound`, `Derives.el_sound`: 60 OWL 2 RL rules and 10 EL rules proven sound for the OWL 2 RDF-Based conditions |
 | `leanrdf-sparql` | `sparql/` | `evalN_perm`, `runQuery_answer`: the evaluator's solutions are the SPARQL 1.1 semantics, up to order |
 | `leanrdf-shacl` | `shacl/` | `validate_conforms`, `validate_sound`: "conforms" exactly when the data conforms, and every result is a real violation |
 | `leanrdf-statements` | `statements/` | `decode_toRDF`, `toRDF_decode`: tiramemsu's bitemporal statement records export to RDF 1.2 reification and decode back exactly; `criterion` and `kernel_greatest`: the paper's Statement Graph criterion and export kernel |
+| `leanrdf-check` | `check/` | `checkRegime_sound`: one theorem for the checking tool, giving simple, RDF, RDFS or OWL entailment from an accepted certificate; the certificate's envelope binds it to the digests of its data, query and rules |
 | `leanrdf-elpi` | `elpi/` | the untrusted search: Elpi saturation, certificates, the demo, the oxilite bridge and the classifier |
 
 The libraries contain no `sorry` and no new axioms. They use only `propext`, `Quot.sound` and `Classical.choice`, and tests pin the axioms of every main theorem. There is no Mathlib dependency: the core package depends on nothing.
@@ -28,6 +29,7 @@ The libraries contain no `sorry` and no new axioms. They use only `propext`, `Qu
 | W3C RDF 1.1 N-Triples, Turtle, N-Quads, TriG | all pass |
 | W3C RDF 1.2 N-Triples, N-Quads (with canonicalization), Turtle, TriG | all pass |
 | W3C RDF 1.2 Semantics | 20 run: 16 certified, 4 not derived; 9 need datatypes outside D |
+| W3C RDF Dataset Canonicalization (RDFC-1.0) | 86 / 86, poison graphs included |
 | W3C SPARQL 1.1 Query | 97 syntax and 257 evaluation tests pass |
 | W3C SHACL Core | 98 / 98 |
 | Statement graphs, exhaustive | all 406,901 graphs of at most 4 records |
@@ -69,6 +71,7 @@ theorem g_entails_q : g.RDFSEntails q := checkQueryB_sound (c := cert) (by nativ
 | `leanrdf-sparql query --location FILE --query Q` | `sparql/` | run a SPARQL 1.1 query with the proven evaluator |
 | `leanrdf-shacl validate --data DATA --shapes SHAPES` | `shacl/` | SHACL Core validation, report in Turtle |
 | `leanrdf-sg check\|export\|decode\|kernel\|quote FILE` | `statements/` | statement records to RDF 1.2 and back, the export kernel, the quoting view |
+| `leanrdf-check --data D --query Q --cert C [--rules R] [--json] [--emit-envelope OUT]` | `check/` | check a certificate someone else wrote, with no search: simple, RDF, RDFS, OWL 2 RL or EL; verifies the data, query and rules digests of a version-2 certificate |
 
 Exit codes are the same for every tool: `0` proven or ran, `1` not derived or does not conform, `2` a certificate was rejected (a bug on the untrusted side), `3` input error. "Not derived" is never a claim that something is false, because the rules are proven sound, not complete.
 
@@ -93,7 +96,7 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 require «leanrdf-shacl» from git "https://github.com/Volland/rdf-lean" @ "main" / "shacl"
 ```
 
-Sub-packages are named by their directory: `sparql`, `owl`, `shacl`, `statements` or `elpi`. See [Packages and installation](https://volland.github.io/rdf-lean/docs/packages/).
+Sub-packages are named by their directory: `sparql`, `owl`, `shacl`, `statements`, `check` or `elpi`. See [Packages and installation](https://volland.github.io/rdf-lean/docs/packages/).
 
 ## Build and test everything
 
@@ -103,6 +106,7 @@ lake build && lake test                    # leanrdf
 (cd owl && lake build && lake test)        # leanrdf-owl
 (cd shacl && lake build && lake test)      # leanrdf-shacl, with the W3C SHACL Core suite
 (cd statements && lake build && lake test) # leanrdf-statements, with the exhaustive check
+(cd check && lake build && lake test)      # leanrdf-check, with the certificate corpus
 (cd elpi && lake build && lake test)       # leanrdf-elpi
 scripts/examples.sh                        # the runnable examples
 ```

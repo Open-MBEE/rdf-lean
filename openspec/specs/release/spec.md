@@ -31,11 +31,11 @@ The repository SHALL be public after a secrets scan of the tree and history, and
 - **THEN** `v0.1.0` is listed with its notes, and the repository is public
 
 ### Requirement: Release version
-Every Lake package of the repository (`leanrdf`, `leanrdf-elpi`, `leanrdf-sparql`, `leanrdf-owl`, `leanrdf-shacl`, `leanrdf-statements`) SHALL declare the version of the latest release, `0.3.1` since `align-sg-with-tiramemsu`, together with a `description`, `keywords` and the site as `homepage`. The core package's description SHALL name RDF 1.2.
+Every Lake package of the repository (`leanrdf`, `leanrdf-elpi`, `leanrdf-sparql`, `leanrdf-owl`, `leanrdf-shacl`, `leanrdf-statements`, `leanrdf-check`) SHALL declare the version of the latest release, `0.4.0` since `add-certificate-envelope`, together with a `description`, `keywords` and the site as `homepage`. The core package's description SHALL name RDF 1.2.
 
 #### Scenario: Every package has the release version
-- **WHEN** the six lakefiles are inspected
-- **THEN** each declares `version := v!"0.3.1"`, a description, keywords and the homepage, and the core description says "RDF 1.2"
+- **WHEN** the seven lakefiles are inspected
+- **THEN** each declares `version := v!"0.4.0"`, a description, keywords and the homepage, and the core description says "RDF 1.2"
 
 ### Requirement: RDF 1.2 release
 `v0.2.0` SHALL be tagged on `main` after `add-rdf12-core`, `add-rdf12-syntax` and `add-rdf12-semantics` are archived, and published as a GitHub release whose notes list the RDF 1.2 capabilities, the breaking Lean API changes (`Term.triple`, `Literal.dirLang`, the new interpretation fields), what the version proves and what it trusts.
@@ -57,3 +57,16 @@ Every Lake package of the repository (`leanrdf`, `leanrdf-elpi`, `leanrdf-sparql
 #### Scenario: Release v0.3.1 exists
 - **WHEN** the release page of `Volland/rdf-lean` is opened
 - **THEN** `v0.3.1` is listed with its notes, after `v0.3.0`
+
+### Requirement: Proof-carrying answers release
+`v0.4.0` SHALL be tagged on `main` after `add-certificate-check` and `add-certificate-envelope` are archived, and published as a GitHub release whose notes list:
+- `leanrdf-check` and its verdicts;
+- certificate version 2 and its envelope;
+- RDFC-1.0 and digests;
+- what the version proves and what it trusts.
+
+CI SHALL build and test `check/` and run its example.
+
+#### Scenario: Release v0.4.0 exists
+- **WHEN** the release page of `Volland/rdf-lean` is opened
+- **THEN** `v0.4.0` is listed with its notes, after `v0.3.1`

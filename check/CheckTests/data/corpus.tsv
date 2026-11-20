@@ -1,0 +1,22 @@
+# regime	data	query	certificate	expected exit
+rdfs	pets.nt	query-mammal-owner.nt	pets-mammal-owner.json	0
+rdfs	pets.nt	query-tom-animal.nt	pets-tom-animal.json	0
+rdfs	pets.nt	query-mammal-owner.nt	pets-mammal-owner-swapped.json	2
+rdfs	pets-no-domain.nt	query-mammal-owner.nt	pets-mammal-owner-v1.json	2
+rdfs	pets.nt	query-mammal-owner.nt	pets-mammal-owner-v1.json	0
+rdfs	pets-extended.nt	query-mammal-owner.nt	pets-mammal-owner-v1.json	0
+rdfs	pets-extended.nt	query-mammal-owner.nt	pets-mammal-owner.json	2
+rdfs	pets-no-domain.nt	query-mammal-owner.nt	pets-mammal-owner.json	2
+rdfs	pets-bnode-relabeled.nt	query-mammal-owner.nt	pets-bnode-mammal-owner.json	0
+owl	pets.nt	query-mammal-owner.nt	pets-mammal-owner.json	2
+simple	simple.nt	simple-query.nt	simple.json	0
+simple	simple.nt	rdf-query.nt	rdf.json	2
+rdf	simple.nt	rdf-query.nt	rdf.json	0
+owl	owl.nt	owl-query.nt	owl.json	0
+owl	owl.nt	owl-query.nt	owl-bad-premises.json	2
+owl	owl.nt	owl-query.nt	owl-fake-fact.json	2
+rdfs	owl.nt	owl-query.nt	owl.json	2
+el	el.nt	el-query.nt	el.json	0
+rdfs	simple.nt	simple-query.nt	bad-version.json	3
+rdfs	simple.nt	simple-query.nt	not-json.json	3
+rdfs	simple.nt	simple-query.nt	missing.json	3

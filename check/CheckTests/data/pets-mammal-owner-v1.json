@@ -1,0 +1,48 @@
+{"version": 1,
+ "nodes":
+ [{"rule": "fact",
+   "premises": [],
+   "id": 0,
+   "conclusion":
+   ["<http://example.org/Cat>",
+    "<http://www.w3.org/2000/01/rdf-schema#subClassOf>",
+    "<http://example.org/Mammal>"]},
+  {"rule": "fact",
+   "premises": [],
+   "id": 1,
+   "conclusion":
+   ["<http://example.org/bob>",
+    "<http://example.org/hasPet>",
+    "<http://example.org/tom>"]},
+  {"rule": "fact",
+   "premises": [],
+   "id": 2,
+   "conclusion":
+   ["<http://example.org/hasPet>",
+    "<http://www.w3.org/2000/01/rdf-schema#domain>",
+    "<http://example.org/Person>"]},
+  {"rule": "fact",
+   "premises": [],
+   "id": 3,
+   "conclusion":
+   ["<http://example.org/tom>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://example.org/Cat>"]},
+  {"rule": "rdfs2",
+   "premises": [2, 1],
+   "id": 4,
+   "conclusion":
+   ["<http://example.org/bob>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://example.org/Person>"]},
+  {"rule": "rdfs9",
+   "premises": [0, 3],
+   "id": 5,
+   "conclusion":
+   ["<http://example.org/tom>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://example.org/Mammal>"]}],
+ "mapping":
+ [["_:owner", "<http://example.org/bob>"],
+  ["_:pet", "<http://example.org/tom>"]],
+ "goals": [1, 4, 5]}

@@ -1,0 +1,66 @@
+{"version": 2,
+ "nodes":
+ [{"rule": "fact",
+   "premises": [],
+   "id": 0,
+   "conclusion":
+   ["<http://example.org/uni#Lecturer>",
+    "<http://www.w3.org/2000/01/rdf-schema#subClassOf>",
+    "<http://example.org/uni#Staff>"]},
+  {"rule": "fact",
+   "premises": [],
+   "id": 1,
+   "conclusion":
+   ["<http://example.org/uni#Professor>",
+    "<http://www.w3.org/2000/01/rdf-schema#subClassOf>",
+    "<http://example.org/uni#Lecturer>"]},
+  {"rule": "fact",
+   "premises": [],
+   "id": 2,
+   "conclusion":
+   ["<http://example.org/uni#Staff>",
+    "<http://www.w3.org/2000/01/rdf-schema#subClassOf>",
+    "<http://example.org/uni#Person>"]},
+  {"rule": "fact",
+   "premises": [],
+   "id": 3,
+   "conclusion":
+   ["<http://example.org/uni#kurt>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://example.org/uni#Professor>"]},
+  {"rule": "rdfs9",
+   "premises": [1, 3],
+   "id": 4,
+   "conclusion":
+   ["<http://example.org/uni#kurt>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://example.org/uni#Lecturer>"]},
+  {"rule": "rdfs11",
+   "premises": [0, 2],
+   "id": 5,
+   "conclusion":
+   ["<http://example.org/uni#Lecturer>",
+    "<http://www.w3.org/2000/01/rdf-schema#subClassOf>",
+    "<http://example.org/uni#Person>"]},
+  {"rule": "rdfs9",
+   "premises": [5, 4],
+   "id": 6,
+   "conclusion":
+   ["<http://example.org/uni#kurt>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://example.org/uni#Person>"]}],
+ "mapping": [],
+ "goals": [6],
+ "envelope":
+ {"toolchain": "leanprover/lean4:v4.35.0",
+  "theorem": "checkQuery_sound",
+  "rules":
+  {"id": "rdfs",
+   "digest":
+   "sha256:3f141744e87a45ff3f53143c7ec7108de3bd0f6393c030b72d5b1bb1c3a3e9d0"},
+  "regime": "rdfs",
+  "query":
+  "sha256:402b7bd8008310801fff3b15f1c455eda149f26d76cd525cafcbc4a55bb162ac",
+  "graph":
+  "sha256:b69d5884b2f71a4f2f61519036708434e0e65d74cff6f9bb2a2788938aacb68c",
+  "checker": "leanrdf-elpi 0.4.0"}}

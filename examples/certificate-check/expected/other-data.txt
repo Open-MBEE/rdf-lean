@@ -1,0 +1,6 @@
+LeanRDF check: 13 data triples, 1 query triples
+Certificate: 7 nodes, goals [6]
+Data digest: sha256:1b92b9e5959b1d5856adbb252626993a95e1738b92134bf7798d9b875d3ad94b
+Query digest: sha256:402b7bd8008310801fff3b15f1c455eda149f26d76cd525cafcbc4a55bb162ac
+Verdict: CERTIFICATE REJECTED: envelope: graph digest mismatch
+# exit 2

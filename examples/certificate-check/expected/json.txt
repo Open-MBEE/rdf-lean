@@ -1,0 +1,2 @@
+{"bound":true,"dataTriples":12,"exit":0,"goals":[6],"graph":"sha256:b69d5884b2f71a4f2f61519036708434e0e65d74cff6f9bb2a2788938aacb68c","nodes":7,"query":"sha256:402b7bd8008310801fff3b15f1c455eda149f26d76cd525cafcbc4a55bb162ac","queryTriples":1,"regime":"rdfs","theorem":"checkQuery_sound","verdict":"proven"}
+# exit 0

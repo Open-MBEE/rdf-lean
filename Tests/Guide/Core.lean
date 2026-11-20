@@ -62,6 +62,14 @@ def ds : Dataset := (TriG.parse trig).toOption.getD Dataset.empty
 #guard ds.defaultGraph.size == 1 && (ds.namedGraph (.iri ⟨"http://example.org/g1"⟩)).size == 1
 #guard ds.unionGraph.size == 2
 
+/-! ## Canonicalization and digests -/
+
+def g1 : Graph := (NTriples.parse "_:x <http://example.org/p> _:y .\n_:y <http://example.org/p> <http://example.org/o> .\n").toOption.getD ∅
+def g2 : Graph := (NTriples.parse "_:b <http://example.org/p> <http://example.org/o> .\n_:a <http://example.org/p> _:b .\n").toOption.getD ∅
+
+#guard g1.digest.toOption == g2.digest.toOption
+#guard (g1.digest.toOption.map (·.startsWith "sha256:")) == some true
+
 /-! ## XSD values -/
 
 #guard match (Literal.typed "042" ⟨Xsd.ns ++ "integer"⟩).value? with

@@ -188,3 +188,59 @@ S2: valid time exported as `tm:validFromMs` and `tm:validToMs`, apart from tiram
 Capabilities `statement-graphs` and `release`. Depends on [[changes#add-statement-graphs]]. See [[decisions#Valid time under its own names]].
 
 - status:: archived
+
+## add-certificate-check
+
+F1 of the agentic roadmap (`docs/ROADMAP.md`): package `leanrdf-check` with the verified checker and no search, five regimes, `checkRegime_sound`, `leanrdf-check` with a JSON verdict, and a recorded certificate corpus.
+
+Capability `certificate-check`. Depends on [[changes#align-sg-with-tiramemsu]]. See [[decisions#A checker package without the search]].
+
+- status:: archived
+
+## add-certificate-envelope
+
+F2: SHA-256 in the core, RDFC-1.0 canonicalization with an isomorphism theorem, graph digests, certificate version 2 with an envelope that `leanrdf-check` verifies. Release v0.4.0.
+
+Capabilities `rdf-canonicalization`, `certificates`, `certificate-check` and `release`. Depends on [[changes#add-certificate-check]]. See [[decisions#The envelope is untrusted metadata]] and [[decisions#RDFC-1.0 written in the core, with an isomorphism theorem]].
+
+- status:: archived
+
+## add-inconsistency-certificates
+
+F4: clash certificates whose acceptance proves that the data has no model, the fixed-arity OWL 2 RL rules that conclude `false`, and the `inconsistent` verdict (exit 4).
+
+Capabilities `inconsistency`, `owl-rl` and `certificate-check`. Depends on [[changes#add-certificate-envelope]].
+
+- status:: proposed
+
+## add-countermodels
+
+F5: finite countermodels checked by a verified model checker, so `refuted` (exit 5) proves non-entailment for the simple, RDF and RDFS regimes. Release v0.5.0.
+
+Capabilities `countermodels`, `certificate-check` and `release`. Depends on [[changes#add-inconsistency-certificates]].
+
+- status:: proposed
+
+## add-write-gate
+
+F6: `leanrdf-gate`, admission control for agent writes: SHACL on the post-state, certificates for derived triples, a clash check, and statement records that cite the certificates. Release v0.6.0.
+
+Capabilities `write-gate` and `release`. Depends on [[changes#add-countermodels]].
+
+- status:: proposed
+
+## add-proof-carrying-memory
+
+F7: certificates whose facts cite statement records, checked in a view of a statement graph, with retraction impact. Release v0.7.0.
+
+Capabilities `certified-memory` and `release`. Depends on [[changes#add-write-gate]].
+
+- status:: proposed
+
+## add-policy-decisions
+
+F9: a minimal policy vocabulary and certified PERMIT, DENY and NOT DECIDED decisions for an agent's tool calls. Release v0.8.0.
+
+Capabilities `policy-decisions` and `release`. Depends on [[changes#add-proof-carrying-memory]].
+
+- status:: proposed

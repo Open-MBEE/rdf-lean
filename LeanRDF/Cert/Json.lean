@@ -16,7 +16,17 @@ be a subject), so a certificate is readable by itself and reuses the N-Triples p
  "nodes": [{"id": 0, "conclusion": ["<a>", "<p>", "<b>"], "rule": "fact", "premises": []}]}
 ```
 
-Reading JSON is untrusted: a malformed certificate is an error, a wrong one fails the checker.
+Version 2 adds an `envelope` object (`LeanRDF.Cert.Envelope`):
+
+```json
+"envelope": {"graph": "sha256:…", "query": "sha256:…",
+             "rules": {"id": "rdfs", "digest": "sha256:…"}, "regime": "rdfs",
+             "checker": "leanrdf-elpi 0.4.0", "toolchain": "leanprover/lean4:v4.35.0",
+             "theorem": "checkQuery_sound"}
+```
+
+Reading accepts versions 1 and 2. Reading JSON is untrusted: a malformed certificate is an
+error, a wrong one fails the checker, and a wrong envelope fails envelope verification.
 -/
 
 namespace LeanRDF.Cert
@@ -31,13 +41,21 @@ def Node.toJson (n : Node) : Json :=
   Json.mkObj [("id", Lean.toJson n.id), ("conclusion", tripleJson n.conclusion),
     ("rule", Json.str n.rule), ("premises", Lean.toJson n.premises)]
 
+/-- An envelope as JSON. -/
+def Envelope.toJson (e : Envelope) : Json :=
+  Json.mkObj [("graph", Json.str e.graph), ("query", Json.str e.query),
+    ("rules", Json.mkObj [("id", Json.str e.rules.id), ("digest", Json.str e.rules.digest)]),
+    ("regime", Json.str e.regime), ("checker", Json.str e.checker),
+    ("toolchain", Json.str e.toolchain), ("theorem", Json.str e.thm)]
+
 -- @tg: implements:: [[openspec:certificates#Certificate format]]
-/-- A certificate as JSON. -/
+/-- A certificate as JSON: version 2 with its envelope when it has one, version 1 otherwise. -/
 def Certificate.toJson (c : Certificate) : Json :=
-  Json.mkObj [("version", Lean.toJson c.version),
+  Json.mkObj <| [("version", Lean.toJson (if c.envelope.isSome then 2 else 1)),
     ("mapping", Json.arr (c.mapping.toArray.map fun (b, t) =>
       Json.arr #[Json.str (Term.bnode b).toNTriples, Json.str t.toNTriples])),
     ("goals", Lean.toJson c.goals), ("nodes", Json.arr (c.nodes.toArray.map Node.toJson))]
+    ++ (match c.envelope with | some e => [("envelope", e.toJson)] | none => [])
 
 /-- A certificate as indented JSON text. -/
 def Certificate.render (c : Certificate) : String := c.toJson.pretty
@@ -67,17 +85,37 @@ private def mappingOf (j : Json) : Except String (BlankNode × Term) := do
     | _ => throw "a mapping must start with a blank node"
   | _ => throw "a mapping entry must have two terms"
 
-/-- Read a certificate from JSON. -/
+private def strField (j : Json) (k : String) : Except String String := do
+  match j.getObjVal? k with
+  | .ok v => v.getStr?
+  | .error _ => throw s!"envelope: missing field {k}"
+
+/-- Read an envelope from JSON; every field is required. -/
+def Envelope.ofJson (j : Json) : Except String Envelope := do
+  let rules ← match j.getObjVal? "rules" with
+    | .ok r => pure r
+    | .error _ => throw "envelope: missing field rules"
+  return { graph := ← strField j "graph", query := ← strField j "query",
+           rules := { id := ← strField rules "id", digest := ← strField rules "digest" },
+           regime := ← strField j "regime", checker := ← strField j "checker",
+           toolchain := ← strField j "toolchain", thm := ← strField j "theorem" }
+
+/-- Read a certificate from JSON: version 1, or version 2 with its envelope. -/
 def Certificate.ofJson (j : Json) : Except String Certificate := do
   let version ← (← j.getObjVal? "version").getNat?
-  unless version == 1 do throw s!"unsupported certificate version {version}"
+  unless version == 1 || version == 2 do throw s!"unsupported certificate version {version}"
+  let envelope ← if version == 2 then
+      match j.getObjVal? "envelope" with
+      | .ok e => some <$> Envelope.ofJson e
+      | .error _ => throw "a version-2 certificate needs an envelope"
+    else pure none
   let mapping ← match j.getObjVal? "mapping" with
     | .ok m => (← m.getArr?).toList.mapM mappingOf
     | .error _ => pure []
   return { version
            nodes := ← (← (← j.getObjVal? "nodes").getArr?).toList.mapM nodeOf
            goals := ← natsOf (← j.getObjVal? "goals")
-           mapping }
+           mapping, envelope }
 
 /-- Parse a certificate from JSON text. -/
 def Certificate.parse (s : String) : Except String Certificate := do

@@ -1,0 +1,86 @@
+{
+ "version": 1,
+ "mapping": [],
+ "goals": [
+  6
+ ],
+ "nodes": [
+  {
+   "id": 0,
+   "conclusion": [
+    "<http://example.org/C>",
+    "<http://www.w3.org/2000/01/rdf-schema#subClassOf>",
+    "<http://example.org/X>"
+   ],
+   "rule": "fact",
+   "premises": []
+  },
+  {
+   "id": 1,
+   "conclusion": [
+    "<http://example.org/X>",
+    "<http://www.w3.org/2002/07/owl#intersectionOf>",
+    "_:l1"
+   ],
+   "rule": "fact",
+   "premises": []
+  },
+  {
+   "id": 2,
+   "conclusion": [
+    "_:l1",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#first>",
+    "<http://example.org/A>"
+   ],
+   "rule": "fact",
+   "premises": []
+  },
+  {
+   "id": 3,
+   "conclusion": [
+    "_:l1",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#rest>",
+    "_:l2"
+   ],
+   "rule": "fact",
+   "premises": []
+  },
+  {
+   "id": 4,
+   "conclusion": [
+    "_:l2",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#first>",
+    "<http://example.org/B>"
+   ],
+   "rule": "fact",
+   "premises": []
+  },
+  {
+   "id": 5,
+   "conclusion": [
+    "_:l2",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#rest>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>"
+   ],
+   "rule": "fact",
+   "premises": []
+  },
+  {
+   "id": 6,
+   "conclusion": [
+    "<http://example.org/C>",
+    "<http://www.w3.org/2000/01/rdf-schema#subClassOf>",
+    "<http://example.org/A>"
+   ],
+   "rule": "el-int-e1",
+   "premises": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+   ]
+  }
+ ]
+}

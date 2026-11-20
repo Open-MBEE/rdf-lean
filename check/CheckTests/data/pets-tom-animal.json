@@ -1,0 +1,60 @@
+{"version": 2,
+ "nodes":
+ [{"rule": "fact",
+   "premises": [],
+   "id": 0,
+   "conclusion":
+   ["<http://example.org/bob>",
+    "<http://example.org/hasPet>",
+    "<http://example.org/tom>"]},
+  {"rule": "fact",
+   "premises": [],
+   "id": 1,
+   "conclusion":
+   ["<http://example.org/hasPet>",
+    "<http://www.w3.org/2000/01/rdf-schema#range>",
+    "<http://example.org/Animal>"]},
+  {"rule": "fact",
+   "premises": [],
+   "id": 2,
+   "conclusion":
+   ["<http://example.org/tom>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://example.org/Cat>"]},
+  {"rule":
+   "axiom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.w3.org/2000/01/rdf-schema#Resource>",
+   "premises": [],
+   "id": 3,
+   "conclusion":
+   ["<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://www.w3.org/2000/01/rdf-schema#domain>",
+    "<http://www.w3.org/2000/01/rdf-schema#Resource>"]},
+  {"rule": "rdfs2",
+   "premises": [3, 2],
+   "id": 4,
+   "conclusion":
+   ["<http://example.org/tom>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://www.w3.org/2000/01/rdf-schema#Resource>"]},
+  {"rule": "rdfs3",
+   "premises": [1, 0],
+   "id": 5,
+   "conclusion":
+   ["<http://example.org/tom>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://example.org/Animal>"]}],
+ "mapping": [],
+ "goals": [5, 4],
+ "envelope":
+ {"toolchain": "leanprover/lean4:v4.35.0",
+  "theorem": "checkQuery_sound",
+  "rules":
+  {"id": "rdfs",
+   "digest":
+   "sha256:3f141744e87a45ff3f53143c7ec7108de3bd0f6393c030b72d5b1bb1c3a3e9d0"},
+  "regime": "rdfs",
+  "query":
+  "sha256:d00a57d098d838dec171d3988253f1c0be52eaa0bea839780272f3e9005233c0",
+  "graph":
+  "sha256:6956dd560aa479b53c85fca2ac31307e0cdd97abef70bcf6d105e970b8851156",
+  "checker": "leanrdf-elpi 0.4.0"}}

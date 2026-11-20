@@ -101,6 +101,20 @@ def ds : Dataset := (TriG.parse trig).toOption.getD Dataset.empty
 
 `Dataset.ofGraph` puts a graph in the default graph, and `graphNames` lists the names. Each projection has a membership lemma (`mem_defaultGraph`, `mem_namedGraph`, `mem_unionGraph`, `mem_ofGraph`).
 
+## Canonicalization and digests
+
+`LeanRDF.Canon` implements W3C RDF Dataset Canonicalization (RDFC-1.0). `canonicalNQuads` renames blank nodes to `_:c14n0`, `_:c14n1`, … and writes the dataset as sorted N-Quads. `Graph.digest` and `Dataset.digest` hash that output with SHA-256:
+
+```lean
+def g1 : Graph := (NTriples.parse "_:x <http://example.org/p> _:y .\n_:y <http://example.org/p> <http://example.org/o> .\n").toOption.getD ∅
+def g2 : Graph := (NTriples.parse "_:b <http://example.org/p> <http://example.org/o> .\n_:a <http://example.org/p> _:b .\n").toOption.getD ∅
+
+#guard g1.digest.toOption == g2.digest.toOption        -- order and labels do not matter
+#guard (g1.digest.toOption.map (·.startsWith "sha256:")) == some true
+```
+
+`canonical_iso` proves that the canonical dataset is isomorphic to its input. That isomorphic inputs give equal output is tested on the W3C rdf-canon suite. RDFC-1.0 predates triple terms, and LeanRDF canonicalizes blank nodes inside them by an extension of its own. `LeanRDF.Hash` has SHA-256, SHA-384, SHA-512, SHA-1 and MD5 over UTF-8 strings.
+
 ## XSD values
 
 `Literal.value?` reads the value of a literal of a datatype LeanRDF knows: `xsd:string`, `boolean`, `decimal`, `integer` and its derived types, `double`, `float` and `dateTime`. It returns `none` for an unknown datatype or an ill-formed lexical form.

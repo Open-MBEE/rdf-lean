@@ -1,4 +1,5 @@
 import LeanRDF.Cert.Match
+import LeanRDF.Cert.Envelope
 import LeanRDF.Entailment.Soundness
 
 /-!
@@ -29,6 +30,8 @@ structure Certificate where
   nodes : List Node
   goals : List Nat
   mapping : List (BlankNode × Term) := []
+  /-- The envelope of a version-2 certificate. The checker never reads it. -/
+  envelope : Option Envelope := none
   deriving Repr, BEq, Inhabited
 
 /-- The instance mapping of a certificate. -/

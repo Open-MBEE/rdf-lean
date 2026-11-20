@@ -1,0 +1,31 @@
+{
+ "version": 1,
+ "mapping": [],
+ "goals": [
+  1
+ ],
+ "nodes": [
+  {
+   "id": 0,
+   "conclusion": [
+    "<http://example.org/a>",
+    "<http://example.org/p>",
+    "<http://example.org/b>"
+   ],
+   "rule": "fact",
+   "premises": []
+  },
+  {
+   "id": 1,
+   "conclusion": [
+    "<http://example.org/p>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>"
+   ],
+   "rule": "rdfD2",
+   "premises": [
+    0
+   ]
+  }
+ ]
+}

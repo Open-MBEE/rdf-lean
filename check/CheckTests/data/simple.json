@@ -1,0 +1,24 @@
+{
+ "version": 1,
+ "mapping": [
+  [
+   "_:x",
+   "<http://example.org/a>"
+  ]
+ ],
+ "goals": [
+  0
+ ],
+ "nodes": [
+  {
+   "id": 0,
+   "conclusion": [
+    "<http://example.org/a>",
+    "<http://example.org/p>",
+    "<http://example.org/b>"
+   ],
+   "rule": "fact",
+   "premises": []
+  }
+ ]
+}

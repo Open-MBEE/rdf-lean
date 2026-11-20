@@ -408,3 +408,22 @@ The W3C RDF 1.2 semantics suite has 29 active positive and negative entailment t
 - source:: w3c/rdf-tests `rdf/rdf12/rdf-semantics/manifest.ttl`
 - constrains:: [[decisions#The W3C semantics suite in the bridge package]] {strength: must}
 - constrains:: [[decisions#Vacuity with propositions]] {strength: should}
+
+## RDFC-1.0
+
+W3C RDF Dataset Canonicalization (Recommendation, 21 May 2024) fixes the canonical labeling of blank nodes and the sorted canonical N-Quads output.
+
+It fixes first-degree hashes, N-degree hashing and the issuer order. Its test suite has 86 tests and is distributed under the W3C Test Suite and 3-clause BSD licences.
+
+- source:: https://www.w3.org/TR/rdf-canon/ and w3c/rdf-canon `tests/manifest.jsonld`
+- constrains:: [[decisions#RDFC-1.0 written in the core, with an isomorphism theorem]] {strength: must}
+- constrains:: [[decisions#Digests over RDFC-1.0 canonical N-Quads]] {strength: must}
+
+## SHA-256 (FIPS 180-4)
+
+SHA-256 is fixed by FIPS 180-4. It is the hash of RDFC-1.0, of graph digests and of rule digests. LeanRDF's implementation is tested on the NIST example vectors and is not proven against the standard.
+
+- source:: FIPS 180-4 §6.2
+- constrains:: [[decisions#Digests over RDFC-1.0 canonical N-Quads]] {strength: must}
+- constrains:: [[decisions#Rules digest from a canonical rendering]] {strength: must}
+

@@ -1,6 +1,6 @@
 #!/bin/sh
 # Run the examples under examples/ and compare each output with its recorded copy.
-# Usage: scripts/examples.sh [--update] [all|sparql|shacl|elpi|statements]
+# Usage: scripts/examples.sh [--update] [all|sparql|shacl|elpi|statements|check]
 # Every example writes examples/<dir>/expected/<name>.txt: the command's output, then a line
 # "# exit N" with its exit code. --update rewrites those files instead of comparing. The oxilite
 # examples replay outputs recorded with scripts/examples-record.sh, so oxilite is not needed.
@@ -69,6 +69,19 @@ if [ "$WHICH" = all ] || [ "$WHICH" = elpi ]; then
   check owl-rl-family materialized "$BIN/leanrdf-oxilite" data.ttl --materialized \
     --inferred recorded/inferred.tsv
   check owl-el-anatomy classify "$BIN/leanrdf-classify" anatomy.ttl
+fi
+
+if [ "$WHICH" = all ] || [ "$WHICH" = check ]; then
+  build check leanrdf-check
+  CHECK="$ROOT/check/.lake/build/bin/leanrdf-check"
+  check certificate-check proven "$CHECK" --data university.nt --query query-kurt-person.nt \
+    --cert kurt-person.json
+  check certificate-check tampered "$CHECK" --data university.nt --query query-kurt-person.nt \
+    --cert kurt-person-tampered.json
+  check certificate-check json "$CHECK" --data university.nt --query query-kurt-person.nt \
+    --cert kurt-person.json --json
+  check certificate-check other-data "$CHECK" --data university-extended.nt \
+    --query query-kurt-person.nt --cert kurt-person.json
 fi
 
 if [ "$WHICH" = all ] || [ "$WHICH" = statements ]; then

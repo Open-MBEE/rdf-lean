@@ -117,3 +117,27 @@ The six Grdfs14 rules are such rules, so a certificate that uses them does not r
 - source:: CertifyingDatalog `GraphProblemInput` format; RDF 1.2 Semantics §9.2.1
 - impact:: scope
 - deviates_from:: [[constraints#RDF 1.2 entailment patterns]]
+
+## Canonical labels for blank nodes in triple terms
+
+RDFC-1.0 predates RDF 1.2 triple terms, so LeanRDF extends it to blank nodes at any depth inside triple terms.
+
+The extension has three parts. A blank node is mentioned by every quad it occurs in at any depth. The serialization for hashing writes `_:a` and `_:z` at every depth. A blank node nested in a triple term is related through the position of the top-level term that contains it.
+
+On datasets without triple terms this is RDFC-1.0 unchanged, and the W3C suite passes. A future W3C canonicalization for RDF 1.2 may differ, and would then get its own digest prefix.
+
+- source:: RDFC-1.0 §4.6–§4.8; RDF 1.2 Concepts §3.6
+- impact:: interoperability
+- deviates_from:: [[constraints#RDFC-1.0]]
+
+## Canonicity is tested, not proven
+
+That isomorphic datasets get the same canonical N-Quads depends on the hash ordering of RDFC-1.0. It is tested on the W3C rdf-canon suite and on relabeled and reordered copies, not proven. SHA-256 is likewise tested on the NIST vectors, not proven.
+
+What is proven is that canonicalization never merges or invents blank nodes (`canonical_iso`). A canonicity bug would make two copies of the same data get different digests, so a good certificate would be rejected. It could not make a wrong certificate pass.
+
+- source:: RDFC-1.0 §4.4
+- impact:: assurance
+- deviates_from:: [[constraints#RDFC-1.0]]
+- deviates_from:: [[constraints#SHA-256 (FIPS 180-4)]]
+

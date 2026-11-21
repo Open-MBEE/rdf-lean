@@ -21,7 +21,7 @@ namespace LeanRDF
 
 /-- The release of the LeanRDF packages, as written in envelopes. `scripts/check_release.py`
 checks it against the lakefiles. -/
-def release : String := "0.4.0"
+def release : String := "0.5.0"
 
 /-- The Lean toolchain, as written in envelopes. -/
 def toolchain : String := "leanprover/lean4:v" ++ Lean.versionString
@@ -43,6 +43,7 @@ def Guard.render : Guard → String
   | .stringLiteral v => "stringLiteral(?" ++ v ++ ")"
   | .langLiteral v => "langLiteral(?" ++ v ++ ")"
   | .dirLangLiteral v => "dirLangLiteral(?" ++ v ++ ")"
+  | .illTypedString v => "illTypedString(?" ++ v ++ ")"
 
 /-- A rule as one line: name, body patterns, head, guards. -/
 def Rule.render (r : Rule) : String :=

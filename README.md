@@ -14,8 +14,8 @@ LeanRDF is RDF semantics you can prove. It is a set of Lean 4 libraries with a n
 
 | Package | Directory | Main theorem |
 |---|---|---|
-| `leanrdf` | `.` | `checkQuery_sound`: an accepted certificate gives `g.RDFSEntails q`, under 80 RDFS rules each proven sound; `checkQuery_sound_rdf` and `checkQuery_sound_simple` for the RDF and simple regimes; `canonical_iso`: RDFC-1.0 canonicalization never merges blank nodes |
-| `leanrdf-owl` | `owl/` | `Derives.owl_sound`, `Derives.el_sound`: 60 OWL 2 RL rules and 10 EL rules proven sound for the OWL 2 RDF-Based conditions |
+| `leanrdf` | `.` | `checkQuery_sound`: an accepted certificate gives `g.RDFSEntails q`, under 80 RDFS rules each proven sound; `checkQuery_sound_rdf` and `checkQuery_sound_simple` for the RDF and simple regimes; `canonical_iso`: RDFC-1.0 canonicalization never merges blank nodes; `checkCountermodel_sound_rdfs`: a checked countermodel proves `¬ g.RDFSEntails q` |
+| `leanrdf-owl` | `owl/` | `Derives.owl_sound`, `Derives.el_sound`: 60 OWL 2 RL rules and 10 EL rules proven sound for the OWL 2 RDF-Based conditions; `checkClash_sound_owl`: 12 OWL 2 RL clash rules proven sound, so an accepted clash certificate proves the data has no OWL model |
 | `leanrdf-sparql` | `sparql/` | `evalN_perm`, `runQuery_answer`: the evaluator's solutions are the SPARQL 1.1 semantics, up to order |
 | `leanrdf-shacl` | `shacl/` | `validate_conforms`, `validate_sound`: "conforms" exactly when the data conforms, and every result is a real violation |
 | `leanrdf-statements` | `statements/` | `decode_toRDF`, `toRDF_decode`: tiramemsu's bitemporal statement records export to RDF 1.2 reification and decode back exactly; `criterion` and `kernel_greatest`: the paper's Statement Graph criterion and export kernel |
@@ -30,6 +30,7 @@ The libraries contain no `sorry` and no new axioms. They use only `propext`, `Qu
 | W3C RDF 1.2 N-Triples, N-Quads (with canonicalization), Turtle, TriG | all pass |
 | W3C RDF 1.2 Semantics | 20 run: 16 certified, 4 not derived; 9 need datatypes outside D |
 | W3C RDF Dataset Canonicalization (RDFC-1.0) | 86 / 86, poison graphs included |
+| W3C OWL 2 inconsistency tests | 27 decided with checked clash certificates; 91 others listed as not decided (lists, datatypes, beyond OWL 2 RL, or no RDF/XML premise) |
 | W3C SPARQL 1.1 Query | 97 syntax and 257 evaluation tests pass |
 | W3C SHACL Core | 98 / 98 |
 | Statement graphs, exhaustive | all 406,901 graphs of at most 4 records |
@@ -65,13 +66,13 @@ theorem g_entails_q : g.RDFSEntails q := checkQueryB_sound (c := cert) (by nativ
 
 | Command | Package | Purpose |
 |---|---|---|
-| `leanrdf-demo DATA.nt QUERY.nt [--cert OUT.json]` | `elpi/` | RDFS entailment of a query graph, with a checked certificate |
+| `leanrdf-demo DATA.nt QUERY.nt [--profile owl] [--cert OUT.json]` | `elpi/` | RDFS or OWL entailment of a query graph, with a checked certificate; REFUTED (exit 5) with a checked countermodel; INCONSISTENT (exit 4) when the data has a checked clash |
 | `leanrdf-oxilite DATA PATTERN [--profile owl]` | `elpi/` | certify oxilite's answers; `--materialized` audits its OWL closure |
 | `leanrdf-classify ONTOLOGY` | `elpi/` | certified class hierarchy of an OWL 2 EL ontology |
 | `leanrdf-sparql query --location FILE --query Q` | `sparql/` | run a SPARQL 1.1 query with the proven evaluator |
 | `leanrdf-shacl validate --data DATA --shapes SHAPES` | `shacl/` | SHACL Core validation, report in Turtle |
 | `leanrdf-sg check\|export\|decode\|kernel\|quote FILE` | `statements/` | statement records to RDF 1.2 and back, the export kernel, the quoting view |
-| `leanrdf-check --data D --query Q --cert C [--rules R] [--json] [--emit-envelope OUT]` | `check/` | check a certificate someone else wrote, with no search: simple, RDF, RDFS, OWL 2 RL or EL; verifies the data, query and rules digests of a version-2 certificate |
+| `leanrdf-check --data D --query Q (--cert C \| --countermodel M) [--rules R] [--json]` | `check/` | check a certificate someone else wrote, with no search: simple, RDF, RDFS, OWL 2 RL or EL; verifies the data, query and rules digests of a version-2 certificate |
 
 Exit codes are the same for every tool: `0` proven or ran, `1` not derived or does not conform, `2` a certificate was rejected (a bug on the untrusted side), `3` input error. "Not derived" is never a claim that something is false, because the rules are proven sound, not complete.
 
@@ -113,7 +114,7 @@ scripts/examples.sh                        # the runnable examples
 
 ## Read more
 
-- **[The book](https://volland.github.io/rdf-lean/book/)**: sixteen short chapters, from triples to model theory, rules, countermodels, Elpi, certificates, your own rules, certifying oxilite, SPARQL, OWL, SHACL and statement graphs, and what is proven and trusted.
+- **[The book](https://volland.github.io/rdf-lean/book/)**: seventeen short chapters, from triples to model theory, rules, countermodels, saying no, Elpi, certificates, your own rules, certifying oxilite, SPARQL, OWL, SHACL and statement graphs, and what is proven and trusted.
 - **[The documentation](https://volland.github.io/rdf-lean/docs/)**: installation, every tool, the library API of each package, the certificate format, testing and contributing.
 - **[The roadmap](https://volland.github.io/rdf-lean/roadmap/)**: what was built, phase by phase.
 - **Design and requirements**: decisions, constraints and simplifications are a typed graph in `tg.md/`, and the requirements are OpenSpec capabilities in `openspec/specs/`. Read them with `tg search`, `tg section` and `tg trace --gaps`.

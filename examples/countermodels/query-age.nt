@@ -1,0 +1,2 @@
+# Is Alice 42?
+<http://example.org/alice> <http://example.org/age> "42" .

@@ -88,6 +88,32 @@ structure OWLConds (I : SimpleInterp) : Prop where
   intersection of theirs (on resources). -/
   intersection : ∀ x l cs, I.IEXT (I.IS intersectionOf) x l → ListOf I l cs →
     I.IC x ∧ (∀ c ∈ cs, I.IC c) ∧ ∀ y, I.IR y → (I.InClass y x ↔ ∀ c ∈ cs, I.InClass y c)
+  /-- §5.10: disjoint classes have no common instance. -/
+  disjointWith : ∀ c d, I.IEXT (I.IS Owl.disjointWith) c d → ∀ x, I.InClass x c → ¬ I.InClass x d
+  /-- §5.4: a class and its complement have no common instance (the half of
+  `ICEXT(c) = IR \ ICEXT(d)` that the clash rules use). -/
+  complementOf : ∀ c d, I.IEXT (I.IS Owl.complementOf) c d → ∀ x, I.InClass x c → ¬ I.InClass x d
+  /-- §5.10: disjoint properties share no pair. -/
+  propDisjoint : ∀ p q, I.IEXT (I.IS propertyDisjointWith) p q → ∀ x y, I.IEXT p x y → ¬ I.IEXT q x y
+  /-- §5.10: `⟨x, y⟩ ∈ IEXT(I(owl:differentFrom))` only if `x ≠ y`. -/
+  differentFrom : ∀ x y, I.IEXT (I.IS Owl.differentFrom) x y → x ≠ y
+  /-- §5.13: irreflexive properties. -/
+  irreflexive : ∀ p, I.InClass p (I.IS IrreflexiveProperty) → ∀ x, ¬ I.IEXT p x x
+  /-- §5.13: asymmetric properties. -/
+  asymmetric : ∀ p, I.InClass p (I.IS AsymmetricProperty) → ∀ x y, I.IEXT p x y → ¬ I.IEXT p y x
+  /-- §5.15: a negative property assertion with a target individual excludes the pair. -/
+  npaIndividual : ∀ z s p t, I.IEXT (I.IS sourceIndividual) z s → I.IEXT (I.IS assertionProperty) z p →
+    I.IEXT (I.IS targetIndividual) z t → ¬ I.IEXT p s t
+  /-- §5.15: a negative property assertion with a target value excludes the pair. -/
+  npaValue : ∀ z s p t, I.IEXT (I.IS sourceIndividual) z s → I.IEXT (I.IS assertionProperty) z p →
+    I.IEXT (I.IS targetValue) z t → ¬ I.IEXT p s t
+  /-- §5.6: cardinality zero. -/
+  maxCard0 : ∀ r p n, I.IL zero = some n → I.IEXT (I.IS maxCardinality) r n →
+    I.IEXT (I.IS onProperty) r p → ∀ x, I.InClass x r → ∀ y, ¬ I.IEXT p x y
+  /-- §5.6: qualified cardinality zero. -/
+  maxQCard0 : ∀ r p c n, I.IL zero = some n → I.IEXT (I.IS maxQualifiedCardinality) r n →
+    I.IEXT (I.IS onProperty) r p → I.IEXT (I.IS onClass) r c →
+    ∀ x, I.InClass x r → ∀ y, I.IEXT p x y → ¬ I.InClass y c
   /-- The axiomatic triples of `owlAxioms`. -/
   axioms : ∀ a ∈ owlAxioms, I.HoldsIRI a
 
@@ -107,5 +133,9 @@ def _root_.LeanRDF.Graph.OWLEntails (g h : Graph) : Prop :=
 /-- `owl:sameAs` is identity on resources. -/
 theorem sameAs_iff {I : SimpleInterp} (h : OWLConds I) {x y : I.Dom} :
     I.IEXT (I.IS sameAs) x y ↔ x = y ∧ I.IR x := h.sameAs x y
+
+/-- `owl:differentFrom` excludes identity. -/
+theorem differentFrom_ne {I : SimpleInterp} (h : OWLConds I) {x y : I.Dom}
+    (hd : I.IEXT (I.IS Owl.differentFrom) x y) : x ≠ y := h.differentFrom x y hd
 
 end LeanRDF.Owl

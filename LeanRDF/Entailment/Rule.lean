@@ -12,6 +12,15 @@ stated over generalized RDF.
 
 namespace LeanRDF
 
+/-- A code point of XML 1.1 `Char`, the alphabet of the `xsd:string` lexical space (XSD 1.1
+Part 2 §3.3.1): every code point but U+0000, U+FFFE and U+FFFF. Lean's `Char` excludes the
+surrogates already. -/
+def Xsd.isXmlChar (c : Char) : Bool :=
+  c.toNat != 0 && c.toNat != 0xFFFE && c.toNat != 0xFFFF
+
+/-- The lexical space of `xsd:string`: strings of XML 1.1 `Char`. -/
+def Xsd.isStringLexical (s : String) : Bool := s.all Xsd.isXmlChar
+
 /-- A position of a triple pattern: a named variable, a fixed term, or a triple-term pattern
 whose three positions are patterns again. -/
 inductive Pat where
@@ -42,6 +51,9 @@ inductive Guard where
   | langLiteral (v : String)
   /-- The variable is a directional language-tagged literal (RDF 1.2 Concepts §3.4). -/
   | dirLangLiteral (v : String)
+  /-- The variable is an `xsd:string` literal whose lexical form is not in the lexical space
+  (an ill-typed literal, RDF 1.2 Semantics §7.1). Used by clash rules. -/
+  | illTypedString (v : String)
   deriving DecidableEq, Repr
 
 open Vocab in
@@ -51,6 +63,7 @@ def Guard.Holds : Guard → Subst → Prop
   | .stringLiteral v, σ => ∃ s, σ v = .lit (.typed s xsd.string)
   | .langLiteral v, σ => ∃ s t, σ v = .lit (.lang s t)
   | .dirLangLiteral v, σ => ∃ s t d, σ v = .lit (.dirLang s t d)
+  | .illTypedString v, σ => ∃ s, σ v = .lit (.typed s xsd.string) ∧ Xsd.isStringLexical s = false
 
 open Vocab in
 /-- The number of a container membership IRI `rdf:_n`, `n ≥ 1`, found by reading the digits and
@@ -92,6 +105,10 @@ def Guard.check : Guard → Subst → Bool
     match σ v with
     | .lit (.dirLang _ _ _) => true
     | _ => false
+  | .illTypedString v, σ =>
+    match σ v with
+    | .lit (.typed s dt) => dt == xsd.string && !Xsd.isStringLexical s
+    | _ => false
 
 /-- The checker of a guard is sound for its meaning. -/
 theorem Guard.check_sound {g : Guard} {σ : Subst} (h : g.check σ = true) : g.Holds σ := by
@@ -120,6 +137,14 @@ theorem Guard.check_sound {g : Guard} {σ : Subst} (h : g.check σ = true) : g.H
     simp only [Guard.check] at h
     split at h
     · rename_i s t d hv; exact ⟨s, t, d, hv⟩
+    · cases h
+  | illTypedString v =>
+    simp only [Guard.check] at h
+    split at h
+    · rename_i s dt hv
+      simp only [Bool.and_eq_true, beq_iff_eq, Bool.not_eq_true'] at h
+      obtain ⟨rfl, hs⟩ := h
+      exact ⟨s, hv, hs⟩
     · cases h
 
 -- @tg: implements:: [[openspec:rdfs-entailment#Rule format]]

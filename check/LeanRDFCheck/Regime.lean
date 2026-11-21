@@ -105,4 +105,57 @@ theorem checkRegimeB_sound {r : Regime} {g q : Graph} {c : Certificate}
   | ok u => rfl
   | error e => rw [hc] at h; simp [Except.toBool] at h
 
+/-! ## Countermodels -/
+
+/-- The countermodel regime of a regime: simple, RDF and RDFS only. -/
+def Regime.countermodel? : Regime → Option Model.CRegime
+  | .simple => some .simple
+  | .rdf => some .rdf
+  | .rdfs => some .rdfs
+  | .owl | .el => none
+
+/-- The recognized datatypes a refutation is relative to. -/
+def datatypesNote : String := "D = {xsd:string, rdf:langString, rdf:dirLangString}"
+
+/-! ## Clash certificates -/
+
+/-- The clash rules of a regime: the datatype clash under RDFS, the OWL 2 RL clash rules under
+OWL and EL. Simple and RDF entailment have none. -/
+def Regime.clashRules? : Regime → Option (List ClashRule)
+  | .rdfs => some rdfsClashRules
+  | .owl | .el => some Owl.owlClashRules
+  | .simple | .rdf => none
+
+/-- What an accepted clash certificate proves: the data has no model of the regime. -/
+def Regime.Inconsistent : Regime → Graph → Prop
+  | .rdfs, g => ¬ ∃ I : DInterp, I.IsRDFS ∧ I.IsWellTyped ∧ I.Satisfies g
+  | .owl, g | .el, g => ¬ ∃ I : DInterp, I.IsOWL ∧ I.Satisfies g
+  | .simple, _ | .rdf, _ => True
+
+/-- The theorem an accepted clash certificate stands for. -/
+def Regime.clashTheoremName : Regime → String
+  | .rdfs => "checkClash_sound_rdfs"
+  | .owl => "checkClash_sound_owl"
+  | .el => "checkClash_sound_el"
+  | .simple | .rdf => ""
+
+-- @tg: implements:: [[openspec:certificate-check#Clash certificate checking]]
+/-- Check a clash certificate under a regime. -/
+def checkRegimeClash (r : Regime) (g : Graph) (c : Certificate) : Except String Unit :=
+  match r with
+  | .rdfs => checkClash RDFS.rdfsRules rdfsClashRules g c
+  | .owl => checkClash Owl.owlRules Owl.owlClashRules g c
+  | .el => checkClash Owl.owlELRules Owl.owlClashRules g c
+  | .simple | .rdf => .error s!"clash certificates are checked under rdfs, owl or el, not {r.name}"
+
+/-- Soundness: an accepted clash certificate proves that the data has no model of the regime. -/
+theorem checkRegimeClash_sound {r : Regime} {g : Graph} {c : Certificate}
+    (h : checkRegimeClash r g c = .ok ()) : r.Inconsistent g := by
+  cases r with
+  | rdfs => exact checkClash_sound_rdfs h
+  | owl => exact checkClash_sound_owl h
+  | el => exact checkClash_sound_el h
+  | simple => trivial
+  | rdf => trivial
+
 end LeanRDF.Check

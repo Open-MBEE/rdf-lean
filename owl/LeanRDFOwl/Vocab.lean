@@ -41,9 +41,23 @@ def versionInfo := o "versionInfo"
 def priorVersion := o "priorVersion"
 def backwardCompatibleWith := o "backwardCompatibleWith"
 def incompatibleWith := o "incompatibleWith"
+def disjointWith := o "disjointWith"
+def complementOf := o "complementOf"
+def propertyDisjointWith := o "propertyDisjointWith"
+def differentFrom := o "differentFrom"
+def IrreflexiveProperty := o "IrreflexiveProperty"
+def AsymmetricProperty := o "AsymmetricProperty"
+def NegativePropertyAssertion := o "NegativePropertyAssertion"
+def sourceIndividual := o "sourceIndividual"
+def assertionProperty := o "assertionProperty"
+def targetIndividual := o "targetIndividual"
+def targetValue := o "targetValue"
 
 /-- The literal `"1"^^xsd:nonNegativeInteger` of cardinality restrictions. -/
 def one : Literal := .typed "1" ⟨"http://www.w3.org/2001/XMLSchema#nonNegativeInteger"⟩
+
+/-- The literal `"0"^^xsd:nonNegativeInteger` of cardinality restrictions. -/
+def zero : Literal := .typed "0" ⟨"http://www.w3.org/2001/XMLSchema#nonNegativeInteger"⟩
 
 open Vocab in
 /-- The axiomatic triples that `prp-ap`, `cls-thing` and `cls-nothing1` state (OWL 2 Profiles §4.3,

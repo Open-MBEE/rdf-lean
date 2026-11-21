@@ -124,3 +124,13 @@ flowchart LR
 ```
 
 - defines:: [[decisions#Executable kernel proven against K]]
+
+## Clash certificate
+
+A certificate that the data has no model. It is a proof DAG, checked as any certificate, plus a clash: a clash rule, a rule with conclusion `false`, and the ids of its premise nodes.
+
+An accepted clash certificate proves that every query follows from the data, vacuously. So the tools report INCONSISTENT (exit 4) instead of any entailment. "No clash found" is never a claim of consistency.
+
+- defines:: [[decisions#Clash rules are a separate rule kind]]
+- defines:: [[decisions#Clash certificates extend the envelope, not the node list]]
+

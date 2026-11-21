@@ -1,0 +1,53 @@
+{"version": 2,
+ "nodes":
+ [{"rule": "fact",
+   "premises": [],
+   "id": 0,
+   "conclusion":
+   ["<http://example.org/Cat>",
+    "<http://www.w3.org/2002/07/owl#disjointWith>",
+    "<http://example.org/Dog>"]},
+  {"rule": "fact",
+   "premises": [],
+   "id": 1,
+   "conclusion":
+   ["<http://example.org/Kitten>",
+    "<http://www.w3.org/2000/01/rdf-schema#subClassOf>",
+    "<http://example.org/Cat>"]},
+  {"rule": "fact",
+   "premises": [],
+   "id": 2,
+   "conclusion":
+   ["<http://example.org/tom>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://example.org/Dog>"]},
+  {"rule": "fact",
+   "premises": [],
+   "id": 3,
+   "conclusion":
+   ["<http://example.org/tom>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://example.org/Kitten>"]},
+  {"rule": "rdfs9",
+   "premises": [1, 3],
+   "id": 4,
+   "conclusion":
+   ["<http://example.org/tom>",
+    "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+    "<http://example.org/Cat>"]}],
+ "mapping": [],
+ "goals": [],
+ "envelope":
+ {"toolchain": "leanprover/lean4:v4.35.0",
+  "theorem": "checkClash_sound_owl",
+  "rules":
+  {"id": "owl",
+   "digest":
+   "sha256:3fb361e7e79163959132b6564f23fe56ff6a6ead724a82ac95373c2d21e682f8"},
+  "regime": "owl",
+  "query":
+  "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "graph":
+  "sha256:c3aa3570d786b974a49a8e58ee6e7f19ee63f63b7a68b59c9573700f9d6f9173",
+  "checker": "leanrdf-elpi 0.4.0"},
+ "clash": {"rule": "cax-dw", "premises": [0, 4, 2]}}

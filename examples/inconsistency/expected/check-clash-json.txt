@@ -1,0 +1,2 @@
+{"bound":true,"clash":"cax-dw","dataTriples":5,"exit":4,"goals":[],"graph":"sha256:c3aa3570d786b974a49a8e58ee6e7f19ee63f63b7a68b59c9573700f9d6f9173","nodes":5,"regime":"owl","theorem":"checkClash_sound_owl","verdict":"inconsistent"}
+# exit 4

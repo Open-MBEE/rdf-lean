@@ -35,6 +35,8 @@ def guardSrc : Guard → String
   | .stringLiteral v => s!"{varSrc v} = rdf.typed _ {Elpi.quoteArg Vocab.xsd.string.val}"
   | .langLiteral v => s!"{varSrc v} = rdf.lang _ _"
   | .dirLangLiteral v => s!"{varSrc v} = rdf.dirlang _ _ _"
+  -- Only clash rules use this guard, and clash rules are matched in Lean, not in Elpi.
+  | .illTypedString _ => "fail"
 
 -- @tg: implements:: [[openspec:elpi-bridge#Rule clauses]]
 /-- The clauses of a rule. A rule with premises gives one `rdf.step` clause per premise

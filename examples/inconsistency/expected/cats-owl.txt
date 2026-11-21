@@ -1,0 +1,11 @@
+LeanRDF: 5 data triples, 1 query triples
+Elpi closure under 140 rules: 351 triples
+Clash: cax-dw on nodes [0, 4, 2]
+Certificate: 5 nodes
+  [0] <http://example.org/Cat> <http://www.w3.org/2002/07/owl#disjointWith> <http://example.org/Dog>  (fact)
+  [1] <http://example.org/Kitten> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/Cat>  (fact)
+  [2] <http://example.org/tom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Dog>  (fact)
+  [3] <http://example.org/tom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Kitten>  (fact)
+  [4] <http://example.org/tom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Cat>  (rdfs9 [1, 3])
+Verdict: INCONSISTENT. The verified checker accepted the clash: by checkClash_sound_owl, the data has no OWL model, so every query follows from it. No entailment is reported.
+# exit 4

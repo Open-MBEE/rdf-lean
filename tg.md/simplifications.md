@@ -24,6 +24,8 @@ D is exactly `{xsd:string, rdf:langString, rdf:dirLangString}`, and their value 
 
 Other datatypes are unrecognized, so their literals are interpreted only through `IL`. Value-space reasoning (`"01"^^xsd:integer` equals `"1"^^xsd:integer`) is out of scope, and so are the RDF 1.2 tests that need it or `rdf:JSON` (the expected-not-run list of the W3C semantics suite). Because the values are fields, every embedding of them is allowed, a larger class than the spec's, which only strengthens soundness. "I(aaa) is the datatype identified by aaa" (§7.1) is not expressed. The value spaces of `rdf:langString` and `rdf:dirLangString` are the tuples with lowercased tags, the only reading under which §8 and §9 agree.
 
+The one D-clash over these datatypes, an `xsd:string` literal outside the lexical space, is the clash rule `dClashString` since [[changes#add-inconsistency-certificates]]. See [[simplifications#Well-typed strings as an assumption of the RDFS clash theorem]].
+
 Since `add-xsd-values`, `LeanRDF.Xsd` computes XSD values for queries and validation (`Literal.value?`, `XsdValue.compare?`), but entailment still does not use them: `"01"^^xsd:integer` and `"1"^^xsd:integer` are different terms to every rule and interpretation.
 
 - source:: RDF 1.2 Semantics §7 and §8
@@ -52,17 +54,19 @@ The semantics keeps the infinite `∀ n` conditions; only the derivation side is
 
 `OWLConds` transcribes only the conditions the included rules need, and for some "iff" conditions only rule-shaped consequences of their reverse direction.
 
-Omitted are the conditions on vocabulary no included rule uses (lists, intersections, unions, keys, negative assertions, datatypes) and, for `rdfs:domain`, `rdfs:range`, `rdfs:subPropertyOf` and `owl:equivalentProperty`, the extensional reverse directions. Every field is a consequence of the full semantics, so more interpretations qualify and every soundness theorem holds for full OWL 2 RDF-Based entailment.
+Omitted are the conditions on vocabulary no included rule or clash rule uses (lists, unions, keys, datatypes, and every cardinality other than zero and one) and, for `rdfs:domain`, `rdfs:range`, `rdfs:subPropertyOf` and `owl:equivalentProperty`, the extensional reverse directions. Every field is a consequence of the full semantics, so more interpretations qualify and every soundness theorem holds for full OWL 2 RDF-Based entailment.
 
 - source:: OWL 2 RDF-Based Semantics §5
 - impact:: soundness-neutral
 - deviates_from:: [[constraints#OWL 2 RDF-Based Semantics]]
 
-## OWL 2 RL without list rules and inconsistency rules
+## OWL 2 RL without list rules
 
-`owlRLRules` leaves out the OWL 2 RL rules whose premises run over an `rdf:List` (`prp-key`, `prp-spo2`, `cls-int1`, `cls-int2`, `cls-uni`, `cls-oo`, `scm-int`, `scm-uni`, `prp-adp`, `cax-adc`, `eq-diff2`, `eq-diff3`) and those that conclude `false`.
+`owlRLRules` and `owlClashRules` leave out the OWL 2 RL rules whose premises run over an `rdf:List`, and the datatype rules.
 
-A rule with a list premise has no fixed number of body patterns, which `Rule` needs. An inconsistency rule derives no triple. The datatype rules (`dt-*`) depend on value spaces the semantics does not interpret. Fewer rules lose completeness, never soundness.
+The list rules are `prp-key`, `prp-spo2`, `cls-int1`, `cls-int2`, `cls-uni`, `cls-oo`, `scm-int`, `scm-uni`, `prp-adp`, `cax-adc`, `eq-diff2` and `eq-diff3`.
+
+A rule with a list premise has no fixed number of body patterns, which `Rule` and `ClashRule` need. The datatype rules (`dt-*`, `dt-not-type` among them) depend on value spaces the semantics does not interpret. The twelve fixed-arity rules that conclude `false` are clash rules since [[changes#add-inconsistency-certificates]]. Fewer rules lose completeness, and fewer clash rules lose inconsistencies, never soundness.
 
 - source:: OWL 2 Profiles §4.3
 - impact:: incompleteness
@@ -140,4 +144,24 @@ What is proven is that canonicalization never merges or invents blank nodes (`ca
 - impact:: assurance
 - deviates_from:: [[constraints#RDFC-1.0]]
 - deviates_from:: [[constraints#SHA-256 (FIPS 180-4)]]
+
+## Well-typed strings as an assumption of the RDFS clash theorem
+
+`checkClash_sound_rdfs` proves that no RDFS interpretation *with well-typed strings* satisfies the graph. `DInterp.IsWellTyped`, "ill-typed `xsd:string` literals denote nothing", is assumed beside `IsRDFS` rather than added to `DInterp`.
+
+RDF 1.2 Semantics §7.1 makes it a property of every D-interpretation. `DInterp` only states that `IL` agrees with `strVal`, and the core and OWL test models define `strVal` as total. Making it partial would rework those models' proofs. The assumption is part of the theorem's statement, so nothing is claimed about interpretations that violate it. The OWL clash theorems do not use it.
+
+- source:: RDF 1.2 Semantics §7.1
+- impact:: scope
+- deviates_from:: [[constraints#Ill-typed literals have no denotation]]
+
+## All triple terms share one sort
+
+In a countermodel presentation every triple term has the triple sort, so a countermodel cannot put two triple terms in different classes or relations.
+
+Refutations that need to tell two propositions apart are not expressible and not found. On the W3C RDF 1.2 semantics suite, three of the four negative tests are reported unknown for this reason. Soundness is unaffected: `tt` stays free, so `IT` stays injective. A later change can key triple-term sorts by the sorts of their components.
+
+- source:: RDF 1.2 Semantics §5
+- impact:: incompleteness
+- deviates_from:: [[constraints#Triple-term denotation]]
 

@@ -24,6 +24,8 @@ import Tests.Entailment.Axioms
 import Tests.Cert.Check
 import Tests.Cert.Axioms
 import Tests.Cert.Envelope
+import Tests.Cert.Clash
+import Tests.Model.Countermodels
 import Tests.Turtle.Iso
 import Tests.Turtle.Parse
 import Tests.Turtle.Rdf12

@@ -1,5 +1,6 @@
 LeanRDF: 7 data triples, 1 query triples
 Elpi closure under 80 rules: 199 triples
 Verdict: NOT DERIVED (no instance of the query is derived).
+The candidate countermodel was rejected: condition failed: RDF: IP is the class rdf:Property
 This is not a claim of non-entailment: completeness is not proven.
 # exit 1

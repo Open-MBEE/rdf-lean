@@ -1,0 +1,3 @@
+<http://www.example.org#s> <http://www.example.org#p1> <http://www.example.org#o> .
+<http://www.example.org#s> <http://www.example.org#p2> <http://www.example.org#o> .
+<http://www.example.org#p1> <http://www.w3.org/2002/07/owl#propertyDisjointWith> <http://www.example.org#p2> .

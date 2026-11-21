@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra, sparql-syntax, owl-rl, shacl-core, owl-el, statement-graphs, certificate-check, rdf-canonicalization]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra, sparql-syntax, owl-rl, shacl-core, owl-el, statement-graphs, certificate-check, rdf-canonicalization, inconsistency, countermodels]
 ---
 # Decisions
 
@@ -1190,4 +1190,180 @@ Certificates are read in versions 1 and 2. Version 2 requires an envelope; versi
 
 - motivated_by:: [[decisions#Own certificate format with a Datalog export]]
 - introduced_by:: [[changes#add-certificate-envelope]]
+
+## Clash rules are a separate rule kind
+
+`ClashRule` is a name, body patterns and guards with no head. `ClashRule.SoundIn C` says no interpretation of `C` makes every body instance true.
+
+**Context.** OWL 2 RL has rules that conclude `false`, and `Rule` has a triple head. A graph with no model entails everything, so certifying entailments without noticing inconsistency gives vacuous answers.
+
+**Decision.** A separate structure, matched by the existing `matchBody` and `Guard.check`. `Rule`, `Derives`, `Rule.SoundIn` and every soundness proof are unchanged.
+
+**Consequences.** A sentinel head such as `owl:Nothing rdf:type owl:Nothing` was rejected: an ordinary query could ask for it, and soundness would need a condition that makes the triple false. `Rule` with an optional head was also rejected: it would touch every rule proof in four packages.
+
+- motivated_by:: [[decisions#Horn rules matched by the checker]] {weight: primary}
+- motivated_by:: [[decisions#Axiom-clean library]]
+- introduced_by:: [[changes#add-inconsistency-certificates]]
+
+## Clash certificates extend the envelope, not the node list
+
+A clash certificate is a version-2 certificate with an empty goal list and a `clash` member: the clash rule and its premise node ids. Its envelope binds it to the data, and its query digest is the digest of the empty graph.
+
+**Context.** A clash certificate needs the same proof DAG, digests and rule-set identity as an entailment certificate.
+
+**Decision.** `Certificate.clash : Option ClashRef`. JSON reads `clash` only in version 2, so a version-1 reader rejects it instead of misreading it. `checkClash` checks the DAG with the ordinary node checker, then matches the premises against the clash rule. `checkClash_sound` is general in the class `C`. It is instantiated by `checkClash_sound_owl`, `checkClash_sound_el` and `checkClash_sound_rdfs`, and `checkClash_explodes_owl` states the explosion.
+
+**Consequences.** `leanrdf-check` reads one format. A clash certificate is checked without `--query`, and giving one is an input error.
+
+- motivated_by:: [[decisions#Own certificate format with a Datalog export]]
+- motivated_by:: [[decisions#The envelope is untrusted metadata]]
+- introduced_by:: [[changes#add-inconsistency-certificates]]
+
+## The OWL conditions for clash rules
+
+`OWLConds` gains ten fields: disjoint classes, complement disjointness, disjoint properties, `owl:differentFrom`, irreflexive and asymmetric properties, two negative property assertions, and cardinality zero.
+
+**Context.** The twelve clash rules are sound only if the semantics states what they contradict.
+
+**Decision.** One field per §5 condition, in the direction the rule needs. Each is a consequence of the full OWL 2 RDF-Based semantics. `complementOf` keeps only the disjointness half of `ICEXT(c) = IR \ ICEXT(d)`. Cardinality zero assumes the literal `"0"^^xsd:nonNegativeInteger` denotes, as cardinality one already did.
+
+**Consequences.** Every existing proof still builds, since fields are used by name. The extended model stays a model.
+
+- motivated_by:: [[constraints#OWL 2 RDF-Based Semantics]] {weight: primary}
+- motivated_by:: [[constraints#OWL 2 RL rules]]
+- introduced_by:: [[changes#add-inconsistency-certificates]]
+
+## The extended model stays a model
+
+The OWL test model interprets `owl:differentFrom` as inequality and `owl:disjointWith` as "no common element". The other clash vocabulary gets empty extensions, and two example classes are empty.
+
+**Context.** A stronger `OWLConds` could be unsatisfiable, and then every OWL theorem would be vacuous.
+
+**Decision.** `OwlTests/Model.lean` proves the new fields for the model. `owlAxioms` mentions none of the new vocabulary, so no axiom needed a non-empty extension. A model of `{ex:a owl:differentFrom ex:b}` and a countermodel for `{ex:Unicorn owl:disjointWith ex:Dragon} ⊭ {ex:Unicorn owl:sameAs ex:Dragon}` show that the conditions are not trivial.
+
+**Consequences.** Vacuity is ruled out by a kernel-checked model, without `native_decide`.
+
+- motivated_by:: [[decisions#Semantics tested against vacuity]] {weight: primary}
+- introduced_by:: [[changes#add-inconsistency-certificates]]
+
+## The datatype clash is about xsd:string only
+
+With three recognized datatypes, the only ill-typed literals are `xsd:string` literals with U+0000, U+FFFE or U+FFFF. `dClashString` with the guard `illTypedString` finds them, and the RDFS clash theorem assumes `IsWellTyped`.
+
+**Context.** RDF 1.2 Semantics §7.1 makes a graph with an ill-typed literal of a recognized datatype unsatisfiable. `DInterp` states `IL` on `xsd:string` only through a total `strVal` in the test models, and making it partial would cascade into the OWL model's proofs.
+
+**Decision.** The design's fallback. `SimpleInterp.WellTypedStrings` and `DInterp.IsWellTyped` state that ill-typed strings denote nothing, and `checkClash_sound_rdfs` assumes it beside `IsRDFS`. `Xsd.isStringLexical` decides the lexical space, and the guard `illTypedString` has a `check_sound` case like every guard.
+
+**Consequences.** The RDFS clash theorem is about RDFS interpretations with well-typed strings, recorded as a simplification. When XSD values enter the semantics (roadmap F8), more clash rules only add to `rdfsClashRules`.
+
+- motivated_by:: [[constraints#Ill-typed literals have no denotation]] {weight: primary}
+- motivated_by:: [[constraints#RDF 1.2 RDF interpretations]]
+- introduced_by:: [[changes#add-inconsistency-certificates]]
+
+## Inconsistency is checked before entailment
+
+`leanrdf-demo`, `leanrdf-oxilite` and `leanrdf-classify` look for a clash in the saturated closure before they certify anything. On an accepted clash they report INCONSISTENT, exit 4, and report no entailment.
+
+**Context.** An agent that branches on the exit code would act on a vacuous ENTAILED. That is the failure this change exists to prevent.
+
+**Decision.** The clash search runs after saturation. A rejected clash certificate is exit 2, as for any rejected certificate. No clash found makes no claim of consistency, and the tool goes on to entailment. The search matches clash-rule bodies against the Elpi closure with a backtracking join in Lean (`clashCertificate`), not with generated Elpi clauses. The search is untrusted either way, and the join reuses `matchTPat` and the guards' checkers. The premises then become the goals of the same pruning as for query certificates.
+
+**Consequences.** One saturation serves both checks. oxilite's answers on inconsistent data are never certified. Under the RDFS profile, OWL vocabulary means nothing, so `owl:disjointWith` gives no clash there.
+
+- motivated_by:: [[decisions#Demo never claims non-entailment]] {weight: primary}
+- motivated_by:: [[decisions#Elpi finds, Lean checks]]
+- introduced_by:: [[changes#add-inconsistency-certificates]]
+
+## W3C inconsistency tests selected by the clash search
+
+The approved W3C OWL 2 inconsistency tests in which the fixed-arity clash rules find a clash are vendored and run. Every other test is listed with the reason it is not run.
+
+**Context.** The OWL 2 test suite is a static RDF/XML manifest whose premises are RDF/XML literals. LeanRDF reads no RDF/XML, and most inconsistency tests need list rules, datatypes or reasoning outside OWL 2 RL.
+
+**Decision.** The premises were converted to N-Triples once, offline, with oxigraph 0.5.7, and the clash search was run over every approved premise. The 27 it decides are vendored in `elpi/BridgeTests/data/owl2-inconsistency/`. `index.tsv` lists all 128 tests, and the bridge tests require an accepted clash certificate for each of the 27.
+
+**Consequences.** The selection is reproducible, and a regression in the search or the checker fails the build. The 78 approved tests without a clash are recorded as not decided, never as consistent. They use 11 of the 12 clash rules; `cls-maxqc2` is exercised by the unit tests only.
+
+- motivated_by:: [[decisions#Inconsistency is checked before entailment]]
+- introduced_by:: [[changes#add-inconsistency-certificates]]
+
+## Countermodels as finite presentations
+
+A countermodel is a `Presentation`: a finite description of an infinite interpretation over the free carrier `CDom := base i | lit l | tt x y z`, with IR, IP and `IEXT` read off tables over sorts.
+
+**Context.** `IT` and the literal value maps are injective, so an interpretation with two resources is infinite, and the RDF and RDFS conditions quantify over every `rdf:_n` and every literal. A no needs a model, and the small-model family of the vacuity tests fixes most classes to "everything".
+
+**Decision.** Every element has a sort:
+- `base i` has sort `i`;
+- a literal has its override's sort, or its kind's default sort;
+- every triple term has the triple sort.
+
+`Presentation.dinterp` sets `IT := tt` and `IL l := lit (normLit l)`, so injectivity holds by construction.
+
+**Consequences.** One finite object covers the infinite vocabularies, and every condition over all elements is discharged by proof. A finite carrier was rejected because it cannot satisfy the injectivity conditions. So was a proven decider for simple entailment only, which gives no route to RDF or RDFS.
+
+- motivated_by:: [[decisions#Small models become free triple-term extensions]] {weight: primary}
+- motivated_by:: [[decisions#Elpi finds, Lean checks]] {weight: primary}
+- motivated_by:: [[constraints#Simple interpretations]]
+- introduced_by:: [[changes#add-countermodels]]
+
+## Sort-level conditions with lifting lemmas
+
+Every condition of `RDFConditions` and `RDFSConditions` has a decidable form over the sorts, and `isRDF_of` and `isRDFS_of` prove that the sort-level forms make the presented interpretation an RDF and an RDFS interpretation.
+
+**Context.** The checker must decide conditions that quantify over an infinite carrier.
+
+**Decision.** There are three shapes.
+- Conditions over IR, IP and `IEXT` lift because every relation factors through `sortOf`: the sort-level form is checked for every sort below `n`, inhabited or not.
+- The datatype classes lift through kind purity. A sort is in the class `xsd:string` iff its kind is `string`, and `kind_string_iff` proves that the elements of `string` sorts are exactly the string literals. Literals whose tag is not lowercase have the base sort 0, which needs `toLower_toLower`.
+- `rdf:_n` conditions are checked on `memberSorts`: the default and every listed IRI starting with `rdf:_` (`isMemberIri_member`).
+
+**Consequences.** Checking all sorts instead of the inhabited ones only rejects more, so no inhabitation proof is needed. Both helper lemmas are proven with `omega`, without `bv_decide`, so the theorems stay axiom-clean.
+
+- motivated_by:: [[constraints#RDF 1.2 RDF interpretations]] {weight: primary}
+- motivated_by:: [[constraints#RDF 1.2 RDFS conditions]] {weight: primary}
+- motivated_by:: [[constraints#RDFS interpretation conditions]]
+- motivated_by:: [[decisions#Layered interpretations with a core]]
+- introduced_by:: [[changes#add-countermodels]]
+
+## Exhaustive sort search for the query
+
+The checker enumerates every assignment of resource sorts to the query's blank nodes and requires a false query triple under each. `not_satisfies_q` proves that this covers every assignment into IR.
+
+**Context.** `¬ I.Satisfies q` quantifies over all `A : BlankNode → CDom`.
+
+**Decision.** Truth depends only on `sortOf ∘ A` (`holds_iff`, `sHolds_congr`). The enumeration `assignments` is complete by `mem_assignments`. The number of assignments is bounded by a step budget, and exceeding it is a rejection.
+
+**Consequences.** The only search inside the trusted base is a plain enumeration. A query with `b` blank nodes over `s` resource sorts costs `s^b` assignments.
+
+- motivated_by:: [[constraints#Entailed blank nodes are existential]] {weight: primary}
+- introduced_by:: [[changes#add-countermodels]]
+
+## Canonical presentation from the closure
+
+The finder adds representative triples to the data, saturates in Elpi, and makes the canonical presentation of the closure: one sort per term, the closure as `IEXT`.
+
+**Context.** A countermodel must be found by something untrusted, and the Elpi closure is already at hand.
+
+**Decision.** `Canonical.repTriples` adds an unlisted IRI, an `rdf:_n` as a predicate (the container axioms fire for predicates), one literal of each kind, a triple term, and every IRI of the query. `Canonical.build` assigns sorts and flags. Positions inside triple terms set the IR and IP flags too, because a triple term denotes only on `IR × IP × IR`.
+
+**Consequences.** The canonical model is a model only where the rules are complete for the data. Elsewhere the checker names the failed condition and the verdict stays NOT DERIVED. A wrong REFUTED is impossible.
+
+- motivated_by:: [[decisions#Forward-chaining saturation in Elpi]]
+- motivated_by:: [[decisions#Small-model family for vacuity]] {note: "checking one canonical model is not a completeness proof"}
+- introduced_by:: [[changes#add-countermodels]]
+
+## REFUTED is relative to the recognized datatypes
+
+A REFUTED verdict names the regime and D = {xsd:string, rdf:langString, rdf:dirLangString}, and the JSON verdict carries `datatypes`. REFUTED comes only from a countermodel the verified model checker accepted.
+
+**Context.** Under a larger D, an ill-typed literal can make the data unsatisfiable, and then everything follows.
+
+**Decision.** Every REFUTED says so. `checkCountermodel_consistent` proves that an accepted RDFS countermodel is an RDFS model of the data, so REFUTED and INCONSISTENT are never both returned for one graph. The demo runs the finder only when no instance is derived and no clash was found.
+
+**Consequences.** The demo's rule that it never claims non-entailment becomes: it claims non-entailment only from a checked countermodel.
+
+- motivated_by:: [[decisions#Three recognized datatypes with abstract values]] {weight: primary}
+- amends:: [[decisions#Demo never claims non-entailment]] {note: "non-entailment only from a checked countermodel"}
+- introduced_by:: [[changes#add-countermodels]]
 

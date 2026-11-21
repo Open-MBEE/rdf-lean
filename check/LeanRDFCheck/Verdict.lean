@@ -52,6 +52,10 @@ structure Report where
   bound : Option Bool := none
   /-- Where `--emit-envelope` wrote the version-2 certificate. -/
   emitted : Option String := none
+  /-- The clash rule of a clash certificate. -/
+  clash : Option String := none
+  /-- For a countermodel: the number of sorts and the theorem of its regime. -/
+  sorts : Option Nat := none
   deriving Inhabited
 
 -- @tg: implements:: [[openspec:certificate-check#JSON verdict]]
@@ -62,7 +66,14 @@ def Report.toJson (r : Report) : Json :=
   Json.mkObj <|
     [("verdict", Json.str r.verdict.name), ("exit", Lean.toJson r.verdict.exitCode.toNat)]
     ++ opt "regime" (r.regime.map (Json.str ·.name))
-    ++ opt "theorem" (if r.verdict == .proven then r.regime.map (Json.str ·.theoremName) else none)
+    ++ opt "theorem" (match r.verdict with
+        | .proven => r.regime.map (Json.str ·.theoremName)
+        | .inconsistent => r.regime.map (Json.str ·.clashTheoremName)
+        | .refuted => (r.regime.bind (·.countermodel?)).map (Json.str ·.theoremName)
+        | _ => none)
+    ++ (if r.verdict == .refuted then [("datatypes", Json.str datatypesNote)] else [])
+    ++ opt "sorts" (r.sorts.map Lean.toJson)
+    ++ opt "clash" (r.clash.map Json.str)
     ++ opt "dataTriples" (r.dataTriples.map Lean.toJson)
     ++ opt "queryTriples" (r.queryTriples.map Lean.toJson)
     ++ opt "nodes" (r.nodes.map Lean.toJson)
@@ -79,10 +90,15 @@ def Report.toJson (r : Report) : Json :=
 /-- The report as text. -/
 def Report.toText (r : Report) : String := Id.run do
   let mut out := ""
-  if let (some d, some q) := (r.dataTriples, r.queryTriples) then
+  match r.dataTriples, r.queryTriples, r.clash with
+  | some d, some q, _ =>
     out := out ++ s!"LeanRDF check: {d} data triples, {q} query triples\n"
+  | some d, none, some _ => out := out ++ s!"LeanRDF check: {d} data triples, a clash certificate\n"
+  | _, _, _ => pure ()
+  if let some n := r.sorts then out := out ++ s!"Countermodel: {n} sorts\n"
   if let some n := r.nodes then
-    out := out ++ s!"Certificate: {n} nodes, goals {r.goals}\n"
+    out := out ++ (if r.clash.isSome then s!"Certificate: {n} nodes\n"
+      else s!"Certificate: {n} nodes, goals {r.goals}\n")
   if let some d := r.graphDigest then out := out ++ s!"Data digest: {d}\n"
   if let some d := r.queryDigest then out := out ++ s!"Query digest: {d}\n"
   match r.bound with
@@ -95,8 +111,16 @@ def Report.toText (r : Report) : String := Id.run do
   match r.verdict, r.regime with
   | .proven, some rg =>
     out := out ++ s!"Verdict: PROVEN. The verified checker accepted the certificate under {rg.name}: by {rg.theoremName}, the data {rg.entailsName} the query."
+  | .inconsistent, some rg =>
+    out := out ++ s!"Clash: {r.clash.getD ""}\n"
+    let model := if rg == .rdfs then "RDFS model with well-typed strings" else "OWL model"
+    out := out ++ s!"Verdict: INCONSISTENT. The verified checker accepted the clash certificate under {rg.name}: by {rg.clashTheoremName}, the data has no {model}, so every query follows from it."
+  | .refuted, some rg =>
+    let thm := (rg.countermodel?.map (·.theoremName)).getD ""
+    out := out ++ s!"Verdict: REFUTED. The verified model checker accepted the countermodel under {rg.name}, with {datatypesNote}: by {thm}, the data does not entail the query: ¬ {rg.entailsName}."
   | .rejected, _ =>
-    out := out ++ s!"Verdict: CERTIFICATE REJECTED: {r.reason.getD ""}"
+    let what := if r.sorts.isSome then "COUNTERMODEL" else "CERTIFICATE"
+    out := out ++ s!"Verdict: {what} REJECTED: {r.reason.getD ""}"
   | _, _ =>
     out := out ++ (r.reason.getD r.verdict.name)
   return out

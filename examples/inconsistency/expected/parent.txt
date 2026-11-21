@@ -1,0 +1,8 @@
+LeanRDF: 2 data triples, 1 query triples
+Elpi closure under 140 rules: 326 triples
+Clash: prp-irp on nodes [1, 0]
+Certificate: 2 nodes
+  [0] <http://example.org/ann> <http://example.org/parentOf> <http://example.org/ann>  (fact)
+  [1] <http://example.org/parentOf> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#IrreflexiveProperty>  (fact)
+Verdict: INCONSISTENT. The verified checker accepted the clash: by checkClash_sound_owl, the data has no OWL model, so every query follows from it. No entailment is reported.
+# exit 4

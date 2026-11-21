@@ -1,0 +1,5 @@
+LeanRDF: 11 data triples, 1 query triples
+Elpi closure under 80 rules: 218 triples
+No instance is derived. Countermodel: 54 sorts, 248 IEXT entries.
+Verdict: REFUTED. The verified model checker accepted the countermodel under RDFS, with D = {xsd:string, rdf:langString, rdf:dirLangString}: by checkCountermodel_sound_rdfs, the data does not RDFS-entail the query.
+# exit 5

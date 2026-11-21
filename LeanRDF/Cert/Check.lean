@@ -23,6 +23,14 @@ structure Node where
   premises : List Nat
   deriving Repr, BEq, DecidableEq, Inhabited
 
+-- @tg: implements:: [[openspec:inconsistency#Clash certificates]]
+/-- The clash of a clash certificate: a clash rule and the ids of its premise nodes, in the
+rule's body order. -/
+structure ClashRef where
+  rule : String
+  premises : List Nat
+  deriving Repr, BEq, DecidableEq, Inhabited
+
 /-- A certificate: the DAG, the ids of its goal nodes and an instance mapping for the blank
 nodes of the query (RDF 1.1 Semantics §5.3); unmapped blank nodes map to themselves. -/
 structure Certificate where
@@ -32,6 +40,8 @@ structure Certificate where
   mapping : List (BlankNode × Term) := []
   /-- The envelope of a version-2 certificate. The checker never reads it. -/
   envelope : Option Envelope := none
+  /-- The clash of a clash certificate (version 2 only): the graph has no model. -/
+  clash : Option ClashRef := none
   deriving Repr, BEq, Inhabited
 
 /-- The instance mapping of a certificate. -/

@@ -20,6 +20,9 @@ import LeanRDF.Entailment.Soundness
 import LeanRDF.Cert.Check
 import LeanRDF.Cert.Json
 import LeanRDF.Cert.Datalog
+import LeanRDF.Cert.Clash
+import LeanRDF.Model.Json
+import LeanRDF.Model.Canonical
 
 /-!
 # LeanRDF

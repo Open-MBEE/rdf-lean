@@ -1,0 +1,6 @@
+# A cat that is also a dog, although cats and dogs are disjoint.
+<http://example.org/Cat> <http://www.w3.org/2002/07/owl#disjointWith> <http://example.org/Dog> .
+<http://example.org/Kitten> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/Cat> .
+<http://example.org/tom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Kitten> .
+<http://example.org/tom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Dog> .
+<http://example.org/tom> <http://example.org/name> "Tom" .

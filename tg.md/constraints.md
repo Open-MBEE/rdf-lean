@@ -251,8 +251,9 @@ A Lake `require` applies to a whole package, so every library of a package makes
 
 OWL 2 interpretations extend RDFS interpretations with conditions on the OWL vocabulary: `owl:sameAs` is identity, equivalent classes and properties share extensions, characteristics and restrictions constrain property extensions.
 
-- source:: OWL 2 Web Ontology Language RDF-Based Semantics (W3C Recommendation, 11 December 2012) §5
+- source:: OWL 2 Web Ontology Language RDF-Based Semantics (W3C Recommendation, 11 December 2012) §5, with §5.4, §5.6, §5.10, §5.13 and §5.15 for the clash rules
 - constrains:: [[decisions#OWL 2 RL as sound rules over a subset of the RDF-Based conditions]] {strength: must}
+- constrains:: [[decisions#The OWL conditions for clash rules]] {strength: must}
 
 ## OWL 2 RL rules
 
@@ -260,6 +261,7 @@ OWL 2 RL/RDF is a set of first-order implications over triples, in tables for eq
 
 - source:: OWL 2 Web Ontology Language Profiles (W3C Recommendation, 11 December 2012) §4.3, Tables 4 to 9
 - constrains:: [[decisions#OWL 2 RL as sound rules over a subset of the RDF-Based conditions]] {strength: must}
+- constrains:: [[decisions#Clash rules are a separate rule kind]] {strength: must}
 
 ## SHACL Core
 
@@ -426,4 +428,25 @@ SHA-256 is fixed by FIPS 180-4. It is the hash of RDFC-1.0, of graph digests and
 - source:: FIPS 180-4 §6.2
 - constrains:: [[decisions#Digests over RDFC-1.0 canonical N-Quads]] {strength: must}
 - constrains:: [[decisions#Rules digest from a canonical rendering]] {strength: must}
+
+## Ill-typed literals have no denotation
+
+A literal of a recognized datatype whose lexical form is not in the datatype's lexical space has no denotation, so a graph containing it has no D-interpretation. The lexical space of `xsd:string` is the strings of XML `Char`.
+
+- source:: RDF 1.1 Semantics §7, RDF 1.2 Semantics §7.1; XSD 1.1 Part 2 §3.3.1
+- constrains:: [[decisions#The datatype clash is about xsd:string only]] {strength: must}
+
+## OWL 2 inconsistency test suite
+
+The W3C OWL 2 test suite has 128 inconsistency tests, 118 of them approved, published in a static manifest. W3C test suites are distributed under the W3C Test Suite and 3-clause BSD licences.
+
+- source:: https://www.w3.org/2009/11/owl-test/all.rdf
+- constrains:: [[decisions#W3C inconsistency tests selected by the clash search]] {strength: should}
+
+## W3C negative entailment tests
+
+The W3C RDF 1.2 semantics suite marks some tests as negative entailments: the data does not entail the result graph. They bind the countermodel finder and checker together with the positive tests, which must never be refuted.
+
+- source:: w3c/rdf-tests `rdf/rdf12/rdf-semantics/manifest.ttl`
+- constrains:: [[decisions#Canonical presentation from the closure]] {strength: must}
 

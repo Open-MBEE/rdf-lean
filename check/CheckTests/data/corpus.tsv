@@ -20,3 +20,10 @@ el	el.nt	el-query.nt	el.json	0
 rdfs	simple.nt	simple-query.nt	bad-version.json	3
 rdfs	simple.nt	simple-query.nt	not-json.json	3
 rdfs	simple.nt	simple-query.nt	missing.json	3
+owl	cats.nt	-	cats-clash.json	4
+owl	cats.nt	-	cats-clash-reordered.json	2
+owl	cats.nt	-	cats-clash-unknown-rule.json	2
+rdfs	cats.nt	-	cats-clash.json	2
+rdfs	bad-string.nt	-	bad-string-clash.json	4
+rdfs	pets.nt	-	bad-string-clash.json	2
+simple	bad-string.nt	-	bad-string-clash.json	3

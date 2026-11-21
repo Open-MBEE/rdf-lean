@@ -8,9 +8,11 @@ One OWL interpretation, built on the small RDFS models of the core tests: `owl:s
 `owl:equivalentProperty` are identity, `owl:equivalentClass` relates classes with the same
 extension, `owl:inverseOf` relates total properties, and restrictions are on total properties and
 classes. `owl:Nothing` and the property characteristics are empty classes, and the remaining
-restriction vocabulary and `owl:intersectionOf` are empty. The model satisfies a graph with
-`owl:sameAs`, `owl:inverseOf` and a someValuesFrom restriction, and two countermodels show
-non-entailments.
+restriction vocabulary and `owl:intersectionOf` are empty. `owl:differentFrom` is inequality,
+`owl:disjointWith` relates classes with no common element, and the other vocabulary of the clash
+rules is empty; `ex:Unicorn` and `ex:Dragon` are two empty classes. The model satisfies a graph
+with `owl:sameAs`, `owl:inverseOf` and a someValuesFrom restriction and a graph with
+`owl:differentFrom`, and three countermodels show non-entailments.
 -/
 
 namespace LeanRDF.Owl.Tests.Model
@@ -19,12 +21,15 @@ open Vocab Semantics LeanRDF.Tests.SmallModel
 
 /-- The classes with a chosen (empty) extension. -/
 def customClasses : List IRI :=
-  [Nothing, FunctionalProperty, InverseFunctionalProperty, SymmetricProperty, TransitiveProperty]
+  [Nothing, FunctionalProperty, InverseFunctionalProperty, SymmetricProperty, TransitiveProperty,
+    IrreflexiveProperty, AsymmetricProperty, ⟨"http://example.org/Unicorn"⟩, ⟨"http://example.org/Dragon"⟩]
 
 /-- The properties with a chosen extension. -/
 def customProps : List IRI :=
   [sameAs, equivalentClass, equivalentProperty, inverseOf, onProperty, someValuesFrom,
-    allValuesFrom, Owl.hasValue, maxCardinality, maxQualifiedCardinality, onClass, intersectionOf]
+    allValuesFrom, Owl.hasValue, maxCardinality, maxQualifiedCardinality, onClass, intersectionOf,
+    differentFrom, disjointWith, complementOf, propertyDisjointWith, sourceIndividual,
+    assertionProperty, targetIndividual, targetValue]
 
 def isCustom : Term → Bool
   | .iri c => customClasses.contains c
@@ -60,6 +65,8 @@ def ext (p u v : Term) : Prop :=
   else if p = .iri inverseOf then UProp u ∧ UProp v
   else if p = .iri onProperty then UClass u ∧ UProp v
   else if p = .iri someValuesFrom then UClass u ∧ UClass v
+  else if p = .iri differentFrom then u ≠ v
+  else if p = .iri disjointWith then ∀ x, ¬ (Ty base x u ∧ Ty base x v)
   else False
 
 /-- The parameters of the OWL model. -/
@@ -103,20 +110,34 @@ theorem iext_svf (x y : Term) : IEXT P (.iri someValuesFrom) x y = (UClass x ∧
   rw [iext_custom (by decide), ext, ite_eq_right (by decide), ite_eq_right (by decide),
     ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_left rfl]
 
-/-- The rest of the restriction vocabulary, and `owl:intersectionOf`, are empty. -/
-theorem iext_empty {p : IRI}
-    (hp : p ∈ [allValuesFrom, Owl.hasValue, maxCardinality, maxQualifiedCardinality, onClass,
-      intersectionOf])
-    (x y : Term) : ¬ IEXT P (.iri p) x y := by
-  have hc : ∀ q ∈ [allValuesFrom, Owl.hasValue, maxCardinality, maxQualifiedCardinality, onClass,
-      intersectionOf], q ∈ customProps := by decide
-  have hc := hc p hp
-  rw [iext_custom hc]
-  simp only [List.mem_cons, List.not_mem_nil, or_false] at hp
-  rcases hp with rfl | rfl | rfl | rfl | rfl | rfl <;>
-  · rw [ext, ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_right (by decide),
-      ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_right (by decide)]
-    exact id
+theorem iext_diff (x y : Term) : IEXT P (.iri differentFrom) x y = (x ≠ y) := by
+  rw [iext_custom (by decide), ext, ite_eq_right (by decide), ite_eq_right (by decide),
+    ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_right (by decide),
+    ite_eq_right (by decide), ite_eq_left rfl]
+
+theorem iext_dw (x y : Term) :
+    IEXT P (.iri disjointWith) x y = ∀ z, ¬ (Ty P z x ∧ Ty P z y) := by
+  rw [iext_custom (by decide), ext, ite_eq_right (by decide), ite_eq_right (by decide),
+    ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_right (by decide),
+    ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_left rfl]; rfl
+
+/-- The empty properties: the rest of the restriction vocabulary, `owl:intersectionOf`, and the
+clash vocabulary other than `owl:differentFrom` and `owl:disjointWith`. -/
+def emptyProps : List IRI :=
+  [allValuesFrom, Owl.hasValue, maxCardinality, maxQualifiedCardinality, onClass, intersectionOf,
+    complementOf, propertyDisjointWith, sourceIndividual, assertionProperty, targetIndividual,
+    targetValue]
+
+theorem iext_empty {p : IRI} (hp : p ∈ emptyProps) (x y : Term) : ¬ IEXT P (.iri p) x y := by
+  have hc : ∀ q ∈ emptyProps, q ∈ customProps := by decide
+  have hn : ∀ q ∈ emptyProps, Term.iri q ≠ .iri sameAs ∧ Term.iri q ≠ .iri equivalentClass ∧
+      Term.iri q ≠ .iri equivalentProperty ∧ Term.iri q ≠ .iri inverseOf ∧
+      Term.iri q ≠ .iri onProperty ∧ Term.iri q ≠ .iri someValuesFrom ∧
+      Term.iri q ≠ .iri differentFrom ∧ Term.iri q ≠ .iri disjointWith := by decide
+  obtain ⟨n1, n2, n3, n4, n5, n6, n7, n8⟩ := hn p hp
+  rw [iext_custom (hc p hp), ext, ite_eq_right n1, ite_eq_right n2, ite_eq_right n3,
+    ite_eq_right n4, ite_eq_right n5, ite_eq_right n6, ite_eq_right n7, ite_eq_right n8]
+  exact id
 
 theorem iext_univ {p : Term} (hp : UProp p) (x y : Term) : IEXT P p x y := by
   obtain ⟨h1, h2, h3, h4, h5, h6⟩ := hp
@@ -255,6 +276,21 @@ theorem conds : OWLConds I.toSimpleInterp where
   maxCard1 r _ n _ h := absurd h (iext_empty (p := maxCardinality) (by decide) r n)
   maxQCard1 r _ _ n _ h := absurd h (iext_empty (p := maxQualifiedCardinality) (by decide) r n)
   intersection x l _ h := absurd h (iext_empty (p := intersectionOf) (by decide) x l)
+  disjointWith c d h x hc hd := by
+    have h : IEXT P (.iri disjointWith) c d := h
+    rw [iext_dw] at h
+    exact h x ⟨inClass.1 hc, inClass.1 hd⟩
+  complementOf c d h := absurd h (iext_empty (p := complementOf) (by decide) c d)
+  propDisjoint p q h := absurd h (iext_empty (p := propertyDisjointWith) (by decide) p q)
+  differentFrom x y h := by
+    have h : IEXT P (.iri differentFrom) x y := h
+    rwa [iext_diff] at h
+  irreflexive p h := absurd (inClass.1 h) (ty_empty (by decide) p)
+  asymmetric p h := absurd (inClass.1 h) (ty_empty (by decide) p)
+  npaIndividual z s _ _ h := absurd h (iext_empty (p := sourceIndividual) (by decide) z s)
+  npaValue z s _ _ h := absurd h (iext_empty (p := sourceIndividual) (by decide) z s)
+  maxCard0 r _ n _ h := absurd h (iext_empty (p := maxCardinality) (by decide) r n)
+  maxQCard0 r _ _ n _ h := absurd h (iext_empty (p := maxQualifiedCardinality) (by decide) r n)
   axioms a ha := by
     have h : ∀ b ∈ owlAxioms, b.2.1 = rdf.type ∧ UClass (.iri b.2.2) := by
       unfold UClass; decide
@@ -317,5 +353,20 @@ theorem type_not_sameAs :
       (Graph.ofList [T (ex "a") sameAs (ex "b")]) := fun h =>
   not_satisfies_one (by rw [iext_sameAs]; decide)
     (h I isOWL (satisfies_one (by rw [IEXT_type]; exact ty_univ (by unfold UClass; decide) _)))
+
+-- @tg: verifies:: [[openspec:owl-rl#OWL non-vacuity#The clash conditions have a model]] {level: unit}
+/-- The extended model satisfies `{ex:a owl:differentFrom ex:b}`. -/
+theorem differentFrom_model :
+    I.IsOWL ∧ I.Satisfies (Graph.ofList [T (ex "a") differentFrom (ex "b")]) :=
+  ⟨isOWL, satisfies_one (by rw [iext_diff]; decide)⟩
+
+/-- `{c owl:disjointWith d} ⊭ {c owl:sameAs d}`: two empty classes are disjoint and distinct. -/
+theorem disjointWith_not_sameAs :
+    ¬ (Graph.ofList [T (ex "Unicorn") disjointWith (ex "Dragon")]).OWLEntails
+      (Graph.ofList [T (ex "Unicorn") sameAs (ex "Dragon")]) := fun h =>
+  not_satisfies_one (by rw [iext_sameAs]; decide)
+    (h I isOWL (satisfies_one (by
+      rw [iext_dw]
+      exact fun z hz => ty_empty (c := ⟨"http://example.org/Unicorn"⟩) (by decide) z hz.1)))
 
 end LeanRDF.Owl.Tests.Model

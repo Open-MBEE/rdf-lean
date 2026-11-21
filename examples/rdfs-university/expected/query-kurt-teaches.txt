@@ -1,5 +1,5 @@
 LeanRDF: 12 data triples, 1 query triples
 Elpi closure under 80 rules: 226 triples
-Verdict: NOT DERIVED (no instance of the query is derived).
-This is not a claim of non-entailment: completeness is not proven.
-# exit 1
+No instance is derived. Countermodel: 55 sorts, 255 IEXT entries.
+Verdict: REFUTED. The verified model checker accepted the countermodel under RDFS, with D = {xsd:string, rdf:langString, rdf:dirLangString}: by checkCountermodel_sound_rdfs, the data does not RDFS-entail the query.
+# exit 5

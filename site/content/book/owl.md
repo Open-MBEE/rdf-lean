@@ -48,6 +48,23 @@ theorem type_not_sameAs :
 
 (The statements are abbreviated; the files spell out the graphs.)
 
+## When the data contradicts itself
+
+From a contradiction everything follows. If a graph says that cats and dogs are disjoint and that Tom is both, it has no OWL model, and then *every* query is entailed: Tom is a fish, the moon is cheese. A certificate for "Tom is a fish" would be correct, and worthless.
+
+So LeanRDF certifies inconsistency first. A **clash rule** is a rule whose conclusion is `false`, such as `cax-dw`: `?c1 owl:disjointWith ?c2`, `?x a ?c1`, `?x a ?c2`. A clash certificate is a proof DAG that ends in such a body, and `checkClash_sound_owl` turns its acceptance into a theorem that no OWL interpretation satisfies the graph. The explosion is a theorem too, `checkClash_explodes_owl`.
+
+```
+$ leanrdf-demo cats.nt query-tom-fish.nt --profile owl
+Clash: cax-dw on nodes [0, 4, 2]
+  [4] <http://example.org/tom> rdf:type <http://example.org/Cat>  (rdfs9 [1, 3])
+Verdict: INCONSISTENT. … the data has no OWL model, so every query follows from it. No entailment is reported.
+```
+
+The demo never answers the fish question, because an agent that branches on exit codes would act on a vacuous ENTAILED. INCONSISTENT is exit 4. Finding no clash is not a proof of consistency: the clash rules over lists and datatypes are missing, so the answer is "not found", never "consistent".
+
+The new conditions are tested against vacuity in the same model. `owl:differentFrom` is inequality, `owl:disjointWith` relates classes with no common member, and a countermodel shows that two disjoint classes need not be the same.
+
 ## Certifying oxilite's OWL closure
 
 `leanrdf-oxilite --profile owl` asks oxilite to materialize its OWL 2 RL closure, answers the query against it, and checks each answer under `owlRules`, from oxilite's `why` tree or from Elpi's search. A `prp-inv` step in oxilite's explanation becomes `prp-inv1` or `prp-inv2`. Under the RDFS profile the same step is untranslated, because no RDFS rule matches it.

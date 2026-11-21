@@ -1,0 +1,129 @@
+# kind	test	reason
+skipped	Contradicting-datatype-Restrictions	no RDF/XML premise (functional syntax only)
+skipped	Contradicting-dateTime-restrictions	no RDF/XML premise (functional syntax only)
+skipped	Datatype-Float-Discrete-001	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	Different-types-in-Datatype-Restrictions-and-Complement	no RDF/XML premise (functional syntax only)
+inconsistent	DisjointClasses-002
+skipped	Footnote-not-about-self	not approved (?)
+skipped	Inconsistent-Byte-Filler	no RDF/XML premise (functional syntax only)
+skipped	Inconsistent-Data-Complement-with-the-Restrictions	no RDF/XML premise (functional syntax only)
+skipped	Inconsistent-Disjoint-Dataproperties	no RDF/XML premise (functional syntax only)
+skipped	Inconsistent-String-Pattern-with-Disjoint-Dataproperties	not approved (Proposed)
+skipped	Minus-Infinity-is-not-in-owl-real	no RDF/XML premise (functional syntax only)
+inconsistent	New-Feature-AsymmetricProperty-001
+skipped	New-Feature-BottomDataProperty-001	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	New-Feature-BottomObjectProperty-001	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+inconsistent	New-Feature-DisjointDataProperties-001
+inconsistent	New-Feature-IrreflexiveProperty-001
+skipped	New-Feature-Keys-002	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	New-Feature-Keys-006	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+inconsistent	New-Feature-NegativeDataPropertyAssertion-001
+inconsistent	New-Feature-NegativeObjectPropertyAssertion-001
+skipped	New-Feature-Rational-002	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	New-Feature-TopObjectProperty-001	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	Plus-and-Minus-Zero-are-Distinct	no RDF/XML premise (functional syntax only)
+inconsistent	WebOnt-I4-5-002
+skipped	WebOnt-I5-5-003	not approved (Proposed)
+skipped	WebOnt-I5-5-004	not approved (Proposed)
+skipped	WebOnt-I5-8-001	not approved (Extracredit)
+skipped	WebOnt-I5-8-003	not approved (Extracredit)
+inconsistent	WebOnt-Nothing-001
+skipped	WebOnt-Restriction-001	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-Restriction-002	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-Thing-003	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-Thing-005	not approved (Proposed)
+skipped	WebOnt-description-logic-001	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+inconsistent	WebOnt-description-logic-002
+skipped	WebOnt-description-logic-003	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-004	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-007	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-008	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-010	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-011	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-012	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-013	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-014	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-015	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-017	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-019	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-022	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-023	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-026	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-027	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-029	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-030	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-032	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-033	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-035	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-040	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-101	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-102	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-103	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+inconsistent	WebOnt-description-logic-104
+skipped	WebOnt-description-logic-105	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-106	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-107	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-108	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-109	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-110	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-111	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-502	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-504	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-601	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-602	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-603	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-604	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-608	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-610	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-611	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-612	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-613	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-614	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-615	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-617	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-623	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-626	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-627	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-629	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-630	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-632	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-633	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-641	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-642	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-643	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-644	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-646	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-650	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-description-logic-909	not approved (Extracredit)
+skipped	WebOnt-description-logic-910	not approved (Extracredit)
+skipped	WebOnt-disjointWith-010	not approved (Proposed)
+skipped	WebOnt-maxCardinality-001	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-miscellaneous-203	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	WebOnt-miscellaneous-204	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	datatype-restriction-min-max-inconsistency	no RDF/XML premise (functional syntax only)
+skipped	functionality-clash	no RDF/XML premise (functional syntax only)
+skipped	inconsistent-datatypes	no RDF/XML premise (functional syntax only)
+skipped	inconsistent-integer-filler	no RDF/XML premise (functional syntax only)
+skipped	one-two	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+inconsistent	rdfbased-sem-bool-complement-inst
+inconsistent	rdfbased-sem-char-asymmetric-inst
+inconsistent	rdfbased-sem-char-asymmetric-term
+inconsistent	rdfbased-sem-char-irreflexive-inst
+inconsistent	rdfbased-sem-class-nothing-ext
+inconsistent	rdfbased-sem-eqdis-different-irrflxv
+inconsistent	rdfbased-sem-eqdis-different-sameas
+inconsistent	rdfbased-sem-eqdis-disclass-eqclass
+inconsistent	rdfbased-sem-eqdis-disclass-inst
+inconsistent	rdfbased-sem-eqdis-disclass-irrflxv
+inconsistent	rdfbased-sem-eqdis-disprop-eqprop
+inconsistent	rdfbased-sem-eqdis-disprop-inst
+inconsistent	rdfbased-sem-eqdis-disprop-irrflxv
+skipped	rdfbased-sem-ndis-alldifferent-fw	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	rdfbased-sem-ndis-alldifferent-fw-distinctmembers	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	rdfbased-sem-ndis-alldisjointclasses-fw	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+skipped	rdfbased-sem-ndis-alldisjointproperties-fw	no clash from the fixed-arity OWL 2 RL clash rules (lists, datatypes, or reasoning outside OWL 2 RL)
+inconsistent	rdfbased-sem-npa-dat-fw
+inconsistent	rdfbased-sem-npa-ind-fw
+inconsistent	rdfbased-sem-restrict-maxcard-inst-obj-zero
+inconsistent	rdfbased-sem-restrict-maxqcr-inst-obj-zero
+skipped	string-integer-clash	no RDF/XML premise (functional syntax only)

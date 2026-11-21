@@ -35,6 +35,16 @@ def Profile.rules : Profile → List Rule
   | .rdfs => RDFS.rdfsRules
   | .owl => Owl.owlRules
 
+/-- The clash rules checked before any answer is certified. -/
+def Profile.clashRules : Profile → List ClashRule
+  | .rdfs => rdfsClashRules
+  | .owl => Owl.owlClashRules
+
+/-- The theorem an accepted clash certificate stands for. -/
+def Profile.clashTheorem : Profile → String
+  | .rdfs => "checkClash_sound_rdfs"
+  | .owl => "checkClash_sound_owl"
+
 /-- The reasoning of oxilite's project file. -/
 def Profile.reasoning : Profile → String
   | .rdfs => "rdfs"
@@ -269,6 +279,26 @@ def readGraph (path : System.FilePath) : ExceptT String IO Graph := do
 /-- The name of the recorded trees of answer `i`. -/
 def whyFile (i : Nat) : String := s!"why-{i}.json"
 
+-- @tg: implements:: [[openspec:inconsistency#Inconsistent verdict]]
+/-- Look for a clash in the data before asking oxilite anything: `some` is the report of a
+checked clash (exit 4) or of a rejected clash certificate (exit 2). -/
+def clashFirst (rules : List Rule) (profile : Profile) (g : Graph) :
+    ExceptT String IO (Option (UInt32 × String)) := do
+  let closure ← match saturate rules g with
+    | .ok c => pure c
+    | .error e => throw s!"search failed: {e}"
+  match clashCertificate closure profile.clashRules with
+  | .error e => throw s!"clash search failed: {e}"
+  | .ok none => return none
+  | .ok (some c) =>
+    let rule := (c.clash.map (·.rule)).getD ""
+    match checkClash rules profile.clashRules g c with
+    | .error e => return some (2, s!"Verdict: CLASH CERTIFICATE REJECTED ({rule}): {e}")
+    | .ok () =>
+      return some (4, s!"Clash: {rule} on nodes {(c.clash.map (·.premises)).getD []} of a {c.nodes.length}-node certificate\n" ++
+        s!"Verdict: INCONSISTENT. The verified checker accepted the clash: by {profile.clashTheorem}, " ++
+        "the data has no model, so every pattern follows from it. None of oxilite's answers is certified.")
+
 -- @tg: implements:: [[openspec:oxilite-bridge#Oxilite runner]]
 /-- Run the command: the exit code and the report. -/
 def run (rules : List Rule) (a : Args) : IO (UInt32 × String) := do
@@ -276,6 +306,8 @@ def run (rules : List Rule) (a : Args) : IO (UInt32 × String) := do
   let body (scratch : System.FilePath) : IO (Except String (UInt32 × String)) := (do
     let g ← readGraph a.data
     let q ← readGraph a.pattern
+    -- an inconsistent graph entails everything, so its answers are not certified
+    if let some report ← clashFirst rules a.profile g then return report
     let (proj, store) ← if live then prepare a.oxilite a.data scratch a.profile else pure ("", "")
     let resText ← match a.results with
       | some p => (IO.FS.readFile p : IO String)

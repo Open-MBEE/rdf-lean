@@ -9,8 +9,8 @@ per conclusion (`eq-ref-s`, `eq-ref-p`, …). Rules equal to RDFS patterns are n
 `prp-dom` is rdfs2, `prp-rng` rdfs3, `prp-spo1` rdfs7, `cax-sco` rdfs9, `scm-sco` rdfs11 and
 `scm-spo` rdfs5. Not included: the rules over lists (`prp-spo2`, `prp-key`, `prp-adp`, `cls-int1`,
 `cls-int2`, `cls-uni`, `cls-oo`, `cax-adc`, `eq-diff2`, `eq-diff3`, `scm-int`, `scm-uni`), the
-rules that conclude `false`, and the datatype rules.
--- SIMPLIFICATION: [[simplifications#OWL 2 RL without list rules and inconsistency rules]]
+rules that conclude `false` (the clash rules of `LeanRDFOwl.Clash`), and the datatype rules.
+-- SIMPLIFICATION: [[simplifications#OWL 2 RL without list rules]]
 -/
 
 namespace LeanRDF.Owl

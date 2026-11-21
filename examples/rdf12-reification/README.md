@@ -14,7 +14,7 @@
 | `query-reified-proposition.nt` | is something reified that is an `rdfs:Proposition`? | ENTAILED, by the proposition rule `Grdfs14-o` (RDF 1.2 rdfs14) |
 | `query-someone-claims-age.nt` | does someone say something about Alice's age? | ENTAILED, with `_:age ↦ 42` inside the triple term |
 | `query-label-direction.nt` | is the label an `rdf:dirLangString`? | ENTAILED, by GrdfD1 for directional strings |
-| `query-age-asserted.nt` | is Alice 42? | NOT DERIVED, exit 1: a reified triple is not asserted |
+| `query-age-asserted.nt` | is Alice 42? | NOT DERIVED, exit 1: a reified triple is not asserted; the canonical countermodel is rejected, because the rules do not type the predicate inside the triple term as an `rdf:Property` |
 
 ```bash
 cd elpi

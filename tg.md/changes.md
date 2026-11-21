@@ -209,9 +209,9 @@ Capabilities `rdf-canonicalization`, `certificates`, `certificate-check` and `re
 
 F4: clash certificates whose acceptance proves that the data has no model, the fixed-arity OWL 2 RL rules that conclude `false`, and the `inconsistent` verdict (exit 4).
 
-Capabilities `inconsistency`, `owl-rl` and `certificate-check`. Depends on [[changes#add-certificate-envelope]].
+Capabilities `inconsistency`, `owl-rl` and `certificate-check`. Depends on [[changes#add-certificate-envelope]]. See [[decisions#Clash rules are a separate rule kind]] and [[decisions#Inconsistency is checked before entailment]].
 
-- status:: proposed
+- status:: archived
 
 ## add-countermodels
 
@@ -219,7 +219,7 @@ F5: finite countermodels checked by a verified model checker, so `refuted` (exit
 
 Capabilities `countermodels`, `certificate-check` and `release`. Depends on [[changes#add-inconsistency-certificates]].
 
-- status:: proposed
+- status:: archived
 
 ## add-write-gate
 

@@ -1,0 +1,7 @@
+LeanRDF: 1 data triples, 1 query triples
+Elpi closure under 80 rules: 172 triples
+Clash: d-clash-string on nodes [0]
+Certificate: 1 nodes
+  [0] <http://example.org/a> <http://example.org/label> "a\u0000b"  (fact)
+Verdict: INCONSISTENT. The verified checker accepted the clash: by checkClash_sound_rdfs, the data has no RDFS model with well-typed strings, so every query follows from it. No entailment is reported.
+# exit 4

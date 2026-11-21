@@ -1,6 +1,6 @@
 ---
 title: What is proven, what is trusted
-order: 16
+order: 17
 summary: The exact guarantee of each package, the trusted base, the recorded simplifications, and what remains open.
 ---
 # What is proven, what is trusted
@@ -45,7 +45,7 @@ Every place where LeanRDF covers less than the specification is recorded in `tg.
 | IRIs checked by the N-Triples grammar, not full RFC 3987 | input validation only |
 | `rdf:_n` axioms only for `rdf:_n` that occur | incompleteness, not unsoundness |
 | A subset of the OWL 2 RDF-Based conditions, some only in the direction the rules use | soundness carries over to full OWL 2 entailment |
-| OWL 2 RL without list rules and inconsistency rules | those inferences are not derived |
+| OWL 2 RL without list rules | those inferences are not derived |
 | EL intersections of two or three classes | longer intersections are not derived |
 | Recursive SHACL shapes are rejected when read | §3.4 leaves them undefined |
 

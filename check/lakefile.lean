@@ -8,7 +8,7 @@ so the program an agent or auditor installs to check certificates contains only 
 and the parsers. -/
 package «leanrdf-check» where
   testDriver := "checkTests"
-  version := v!"0.4.0"
+  version := v!"0.5.0"
   description := "Check LeanRDF certificates for simple, RDF, RDFS, OWL 2 RL and EL entailment, with no search in the trusted tool."
   keywords := #["rdf", "certificates", "verification", "proof-checking", "agents"]
   homepage := "https://volland.github.io/rdf-lean/"

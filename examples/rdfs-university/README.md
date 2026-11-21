@@ -6,11 +6,11 @@
 |---|---|---|
 | `query-staff-teaches.nt` | is some staff member teaching a course that some person takes? | ENTAILED, 14-node certificate (Marie, logic101, Emmy) |
 | `query-kurt-person.nt` | is Kurt a person? | ENTAILED, through three `rdfs:subClassOf` steps |
-| `query-kurt-teaches.nt` | does Kurt teach something? | NOT DERIVED, exit 1: being a professor says nothing about teaching |
+| `query-kurt-teaches.nt` | does Kurt teach something? | REFUTED, exit 5: a checked countermodel shows that being a professor says nothing about teaching |
 
 ```bash
 cd elpi
 lake exe leanrdf-demo ../examples/rdfs-university/university.nt ../examples/rdfs-university/query-staff-teaches.nt
 ```
 
-"NOT DERIVED" is not a claim of non-entailment: the RDFS rules are proven sound, not complete.
+"NOT DERIVED" is not a claim of non-entailment: the RDFS rules are proven sound, not complete. "REFUTED" is: the verified model checker accepted a countermodel, so by `checkCountermodel_sound_rdfs` the data does not RDFS-entail the query.

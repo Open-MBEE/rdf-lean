@@ -94,6 +94,27 @@ theorem g_entails_q : g.RDFSEntails q := checkQueryB_sound (c := cert) (by nativ
 
 `native_decide` runs the compiled checker, so a theorem proved this way also trusts the Lean compiler. The library's own theorems never use it. It is meant for concrete data in tests and applications, where the alternative is a derivation written by hand.
 
+## Clash certificates
+
+A clash certificate says the data has **no model**. It is a version-2 certificate with no goals and a `clash` member: a clash rule, a rule with conclusion `false`, and the ids of the premise nodes in body order.
+
+```json
+{"version": 2, "goals": [],
+ "clash": {"rule": "cax-dw", "premises": [0, 4, 2]},
+ "nodes": [ … the DAG, checked as any certificate … ],
+ "envelope": { … "theorem": "checkClash_sound_owl" … }}
+```
+
+`checkClash rules clashes g c` checks every node, finds the clash rule, and matches the premises against its body in order, with every guard true. `checkClash_sound` is general in the class of interpretations, and it is instantiated three times:
+
+| Theorem | Rules and clash rules | Statement |
+|---|---|---|
+| `checkClash_sound_owl` | `owlRules`, `owlClashRules` | `¬ ∃ I : DInterp, I.IsOWL ∧ I.Satisfies g` |
+| `checkClash_sound_el` | `owlELRules`, `owlClashRules` | the same |
+| `checkClash_sound_rdfs` | `rdfsRules`, `[dClashString]` | `¬ ∃ I : DInterp, I.IsRDFS ∧ I.IsWellTyped ∧ I.Satisfies g` |
+
+`checkClash_explodes_owl` derives `g.OWLEntails q` for every `q`. The RDFS clash is the one ill-typed literal over the recognized datatypes: an `xsd:string` containing U+0000, U+FFFE or U+FFFF. Its theorem assumes `IsWellTyped`, "ill-typed strings denote nothing", which RDF 1.2 Semantics §7.1 states for every D-interpretation and `DInterp` does not yet force. Only version 2 can carry a clash, so an older reader rejects it instead of misreading it.
+
 ## Checking a certificate from the command line
 
 `leanrdf-check --data DATA --query QUERY --cert CERT.json --rules REGIME` reads a certificate written by any tool. It verifies the envelope of a version-2 certificate, then runs the checker under one of five regimes (`simple`, `rdf`, `rdfs`, `owl`, `el`). `checkRegime_sound` gives the regime's entailment from an acceptance. See [the command-line tools](/docs/cli/#leanrdf-check).

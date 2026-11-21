@@ -21,7 +21,7 @@ Input formats are chosen by file extension: `.nt` is N-Triples, `.nq` N-Quads, `
 ## leanrdf-demo
 
 ```
-leanrdf-demo DATA.nt QUERY.nt [--cert OUT.json] [--datalog OUT.json]
+leanrdf-demo DATA.nt QUERY.nt [--profile rdfs|owl] [--cert OUT.json] [--datalog OUT.json] [--countermodel OUT.json]
 ```
 
 Is the query graph RDFS-entailed by the data? Blank nodes in the query are existential, so `_:x rdf:type ex:Animal` asks whether something is an animal. The demo saturates the data in Elpi under the 80 RDFS rules, finds an instance of the query in the closure, cuts out a certificate, checks it with the compiled verified checker and prints:
@@ -29,14 +29,20 @@ Is the query graph RDFS-entailed by the data? Blank nodes in the query are exist
 - the number of data and query triples, and the size of the closure;
 - the instance found, one `Query instance: _:b ↦ term` line per blank node;
 - the certificate, one node per line, with its rule and premises;
-- the verdict: `ENTAILED`, `NOT DERIVED` or `REJECTED`.
+- the verdict: `ENTAILED`, `REFUTED`, `NOT DERIVED`, `REJECTED` or `INCONSISTENT`.
+
+When no instance is derived under the RDFS profile, the demo builds a candidate [countermodel](/docs/countermodels/) from the closure. `REFUTED` (exit 5) is printed only when the verified model checker accepts it, with the regime and D = {xsd:string, rdf:langString, rdf:dirLangString}. Otherwise the verdict stays `NOT DERIVED`, with the condition the candidate failed.
+
+Before any entailment, the demo looks for a clash in the closure. When the verified checker accepts a clash certificate, the data has no model and every query follows from it. The demo then prints the clash and its certificate, says `INCONSISTENT`, reports no entailment and exits 4. No clash found is not a claim of consistency.
 
 | Option | Effect |
 |---|---|
-| `--cert OUT.json` | write the certificate as JSON ([format](/docs/certificates/)) |
+| `--profile owl` | reason with the 140 RDFS and OWL 2 RL rules and the OWL clash rules instead of the 80 RDFS rules |
+| `--cert OUT.json` | write the certificate as JSON ([format](/docs/certificates/)), or the clash certificate when the data is inconsistent |
+| `--countermodel OUT.json` | write the accepted countermodel with its envelope ([format](/docs/countermodels/#json)) |
 | `--datalog OUT.json` | write it as a CertifyingDatalog `GraphProblemInput`, for an independent check |
 
-Exit codes: `0` entailed and checked, `1` not derived, `2` certificate rejected or search failed, `3` input error.
+Exit codes: `0` entailed and checked, `1` not derived, `2` certificate rejected or search failed, `3` input error, `4` inconsistent, `5` refuted.
 
 ```bash
 cd elpi
@@ -74,7 +80,7 @@ leanrdf-oxilite DATA --materialized [--oxilite PATH] [--inferred FILE] [--record
 | `--results FILE` | | replay recorded results instead of running oxilite |
 | `--why-dir DIR` | | replay recorded `why-N.json` trees |
 
-A route reports `certified`, `not derived`, `untranslated` (the tree could not be turned into a certificate, with the reason) or `REJECTED`. Exit codes: `0` every answer certified, `1` some answer not certified and none rejected, `2` a certificate rejected, `3` an input or process error.
+A route reports `certified`, `not derived`, `untranslated` (the tree could not be turned into a certificate, with the reason) or `REJECTED`. Exit codes: `0` every answer certified, `1` some answer not certified and none rejected, `2` a certificate rejected, `3` an input or process error, `4` the data is inconsistent (a checked clash, found before any answer is certified; no answer is certified then).
 
 **Materialized closure.** The second form runs oxilite's OWL 2 RL materialization and certifies every inferred triple it stored, each as its own query. It prints the totals (`oxilite inferences: 31, certified: 16`) and, per triple, the rule oxilite names and the result. `--inferred FILE` replays a recorded closure: one line per inference, the rule, a tab, and the triple in N-Triples.
 
@@ -95,7 +101,7 @@ certified subsumptions: 36, unsatisfiable classes: 2
 :PhantomPain ⊑ owl:Nothing (unsatisfiable)
 ```
 
-A named class is an IRI outside the RDF, RDFS, OWL and XSD namespaces. Subsumption by `owl:Nothing` is printed as unsatisfiability. Exit codes: `0` every derived subsumption certified, `1` some not, `2` a certificate rejected, `3` an input or search error.
+A named class is an IRI outside the RDF, RDFS, OWL and XSD namespaces. Subsumption by `owl:Nothing` is printed as unsatisfiability. Exit codes: `0` every derived subsumption certified, `1` some not, `2` a certificate rejected, `3` an input or search error, `4` the ontology is inconsistent (a clash certificate accepted under `checkClash_sound_el`; no hierarchy is printed then).
 
 ## leanrdf-sparql
 
@@ -142,7 +148,7 @@ Exit codes: `0` success, and for `check` well formed, possibly with warnings; `1
 ## leanrdf-check
 
 ```
-leanrdf-check --data DATA --query QUERY --cert CERT.json [--rules simple|rdf|rdfs|owl|el] [--json] [--emit-envelope OUT.json]
+leanrdf-check --data DATA [--query QUERY] (--cert CERT.json | --countermodel MODEL.json) [--rules simple|rdf|rdfs|owl|el] [--json] [--emit-envelope OUT.json]
 ```
 
 Package `check/`. Checks a certificate that someone else wrote, with the verified checker and nothing else: the package does not depend on lean-elpi, and the tool never searches. `--rules` picks the regime (`rdfs` by default), and with it the rule list and the theorem an acceptance stands for:
@@ -155,7 +161,15 @@ Package `check/`. Checks a certificate that someone else wrote, with the verifie
 | `owl` | `owlRules` | `Derives.owl_sound_graph` | `OWLEntails` |
 | `el` | `owlELRules` | `Derives.el_sound_graph` | `OWLEntails` |
 
-All five are combined in one theorem, `LeanRDF.Check.checkRegime_sound`. Exit codes: `0` proven, `2` rejected (with the checker's reason), `3` input error. There is no `1`: a certificate is either accepted or not.
+All five are combined in one theorem, `LeanRDF.Check.checkRegime_sound`. Exit codes: `0` proven, `2` rejected (with the checker's reason), `3` input error, `4` inconsistent, `5` refuted. There is no `1`: a certificate or a countermodel is either accepted or not.
+
+A **countermodel** (`--countermodel FILE`) is checked with the data and the query under `simple`, `rdf` or `rdfs`; `owl` and `el` are input errors. When `checkCountermodel` accepts it, the verdict is `refuted` with exit 5, naming `checkCountermodel_sound_simple`, `_rdf` or `_rdfs` and the datatypes. A rejected countermodel is exit 2, with the failed condition or the assignment under which the query holds.
+
+A **clash certificate** is checked without `--query`; giving one is an input error. Under `rdfs`, `owl` or `el`, `checkRegimeClash_sound` turns its acceptance into the theorem that the data has no model of the regime: `checkClash_sound_rdfs`, `checkClash_sound_owl` or `checkClash_sound_el`. The verdict is `inconsistent` with exit 4, and the JSON names the clash rule:
+
+```json
+{"verdict":"inconsistent","exit":4,"regime":"owl","theorem":"checkClash_sound_owl","clash":"cax-dw","nodes":5,"goals":[],"dataTriples":5,"graph":"sha256:c3aa3570…","bound":true}
+```
 
 Before the proof is checked, the envelope of a version-2 certificate is verified. The tool recomputes the digests of the data and the query it read and of the regime's rule list, and requires the envelope's regime to be the one in use. A mismatch is a rejection that names the field: `envelope: graph digest mismatch`, `envelope: query digest mismatch`, `envelope: rules digest mismatch` or `envelope: regime mismatch`. A version-1 certificate is checked as before, and the verdict says it is unbound. `--emit-envelope OUT.json` writes the accepted certificate as version 2, with the envelope filled from the check.
 

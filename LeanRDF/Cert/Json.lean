@@ -51,11 +51,14 @@ def Envelope.toJson (e : Envelope) : Json :=
 -- @tg: implements:: [[openspec:certificates#Certificate format]]
 /-- A certificate as JSON: version 2 with its envelope when it has one, version 1 otherwise. -/
 def Certificate.toJson (c : Certificate) : Json :=
-  Json.mkObj <| [("version", Lean.toJson (if c.envelope.isSome then 2 else 1)),
+  Json.mkObj <| [("version", Lean.toJson (if c.envelope.isSome || c.clash.isSome then 2 else 1)),
     ("mapping", Json.arr (c.mapping.toArray.map fun (b, t) =>
       Json.arr #[Json.str (Term.bnode b).toNTriples, Json.str t.toNTriples])),
     ("goals", Lean.toJson c.goals), ("nodes", Json.arr (c.nodes.toArray.map Node.toJson))]
     ++ (match c.envelope with | some e => [("envelope", e.toJson)] | none => [])
+    ++ (match c.clash with
+        | some k => [("clash", Json.mkObj [("rule", Json.str k.rule), ("premises", Lean.toJson k.premises)])]
+        | none => [])
 
 /-- A certificate as indented JSON text. -/
 def Certificate.render (c : Certificate) : String := c.toJson.pretty
@@ -109,13 +112,19 @@ def Certificate.ofJson (j : Json) : Except String Certificate := do
       | .ok e => some <$> Envelope.ofJson e
       | .error _ => throw "a version-2 certificate needs an envelope"
     else pure none
+  let clash ← match j.getObjVal? "clash" with
+    | .error _ => pure none
+    | .ok k =>
+      if version != 2 then throw "only a version-2 certificate can carry a clash"
+      pure (some { rule := ← (← k.getObjVal? "rule").getStr?,
+                   premises := ← natsOf (← k.getObjVal? "premises") })
   let mapping ← match j.getObjVal? "mapping" with
     | .ok m => (← m.getArr?).toList.mapM mappingOf
     | .error _ => pure []
   return { version
            nodes := ← (← (← j.getObjVal? "nodes").getArr?).toList.mapM nodeOf
            goals := ← natsOf (← j.getObjVal? "goals")
-           mapping, envelope }
+           mapping, envelope, clash }
 
 /-- Parse a certificate from JSON text. -/
 def Certificate.parse (s : String) : Except String Certificate := do

@@ -2,6 +2,7 @@ import LeanRDFElpi.Encode
 import LeanRDFElpi.Codegen
 import LeanRDFElpi.Saturate
 import LeanRDFElpi.Certify
+import LeanRDFElpi.Countermodel
 import LeanRDFElpi.Demo
 import LeanRDFElpi.Oxilite.Run
 import LeanRDFElpi.Classify

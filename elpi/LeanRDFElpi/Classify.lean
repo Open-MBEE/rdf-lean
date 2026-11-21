@@ -44,9 +44,8 @@ def short : Term → String
   | t => t.toNTriples
 
 -- @tg: implements:: [[openspec:owl-el#Certified classification]]
-/-- Saturate once, then certify each derived subsumption between named classes. -/
-def classify (rules : List Rule) (g : Graph) : Except String (List Edge) := do
-  let c ← saturate rules g
+/-- Certify each derived subsumption between named classes of a closure. -/
+def classifyClosure (rules : List Rule) (g : Graph) (c : Closure) : Except String (List Edge) := do
   let pairs := c.toList.filterMap fun e =>
     let t := e.conclusion
     if t.p == .iri rdfs.subClassOf && named t.s && t.s != t.o &&
@@ -60,6 +59,10 @@ def classify (rules : List Rule) (g : Graph) : Except String (List Edge) := do
         | .ok () => .certified
         | .error e => .rejected e
     { sub := s, sup := o, status }
+
+/-- Saturate once, then certify each derived subsumption between named classes. -/
+def classify (rules : List Rule) (g : Graph) : Except String (List Edge) := do
+  classifyClosure rules g (← saturate rules g)
 
 def exitCode (es : List Edge) : UInt32 :=
   if es.any (fun e => match e.status with | .rejected _ => true | _ => false) then 2
@@ -88,7 +91,22 @@ def run (path : System.FilePath) : IO (UInt32 × String) := do
       else Turtle.parse src ("file://" ++ path.toString)) with
     | .ok g => pure g
     | .error e => return (3, s!"error: {path}:{e}")
-  match classify Owl.owlELRules g with
+  let rules := Owl.owlELRules
+  let c ← match saturate rules g with
+    | .ok c => pure c
+    | .error e => return (3, s!"error: search failed: {e}")
+  -- a clash comes first: an inconsistent ontology makes every subsumption true
+  match clashCertificate c Owl.owlClashRules with
+  | .error e => return (2, s!"error: clash search failed: {e}")
+  | .ok (some cert) =>
+    let rule := (cert.clash.map (·.rule)).getD ""
+    match checkClash rules Owl.owlClashRules g cert with
+    | .error e => return (2, s!"CLASH CERTIFICATE REJECTED ({rule}): {e}")
+    | .ok () =>
+      return (4, s!"clash: {rule} on nodes {(cert.clash.map (·.premises)).getD []} of a {cert.nodes.length}-node certificate\n" ++
+        "INCONSISTENT: by checkClash_sound_el, the ontology has no OWL model, so every subsumption holds; no hierarchy is reported.")
+  | .ok none =>
+  match classifyClosure rules g c with
   | .ok es => return (exitCode es, render es)
   | .error e => return (3, s!"error: search failed: {e}")
 

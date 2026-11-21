@@ -69,6 +69,12 @@ if [ "$WHICH" = all ] || [ "$WHICH" = elpi ]; then
   check owl-rl-family materialized "$BIN/leanrdf-oxilite" data.ttl --materialized \
     --inferred recorded/inferred.tsv
   check owl-el-anatomy classify "$BIN/leanrdf-classify" anatomy.ttl
+  check inconsistency cats-owl "$BIN/leanrdf-demo" cats.nt query-tom-fish.nt --profile owl
+  check countermodels refuted "$BIN/leanrdf-demo" pets.nt query-tom-dog.nt
+  check countermodels not-refuted "$BIN/leanrdf-demo" reified.nt query-age.nt
+  check inconsistency cats-rdfs "$BIN/leanrdf-demo" cats.nt query-tom-fish.nt
+  check inconsistency parent "$BIN/leanrdf-demo" parent.nt query-tom-fish.nt --profile owl
+  check inconsistency bad-string "$BIN/leanrdf-demo" bad-string.nt query-tom-fish.nt
 fi
 
 if [ "$WHICH" = all ] || [ "$WHICH" = check ]; then
@@ -82,6 +88,11 @@ if [ "$WHICH" = all ] || [ "$WHICH" = check ]; then
     --cert kurt-person.json --json
   check certificate-check other-data "$CHECK" --data university-extended.nt \
     --query query-kurt-person.nt --cert kurt-person.json
+  check inconsistency check-clash "$CHECK" --data cats.nt --rules owl --cert cats-clash.json
+  check countermodels check "$CHECK" --data pets.nt --query query-tom-dog.nt --countermodel tom-dog.json
+  check countermodels check-json "$CHECK" --data pets.nt --query query-tom-dog.nt --countermodel tom-dog.json --json
+  check countermodels forged "$CHECK" --data pets.nt --query query-tom-dog.nt --countermodel tom-dog-forged.json
+  check inconsistency check-clash-json "$CHECK" --data cats.nt --rules owl --cert cats-clash.json --json
 fi
 
 if [ "$WHICH" = all ] || [ "$WHICH" = statements ]; then

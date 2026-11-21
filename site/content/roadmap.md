@@ -1,6 +1,6 @@
 ---
 title: Roadmap
-summary: What LeanRDF built, phase by phase: a v0.1 release, datasets and XSD values, certificates for oxilite's answers, SPARQL, OWL 2 RL, SHACL Core, OWL EL, RDF 1.2 (v0.2) and statement graphs (v0.3), proof-carrying answers (v0.4), and what comes next.
+summary: What LeanRDF built, phase by phase: a v0.1 release, datasets and XSD values, certificates for oxilite's answers, SPARQL, OWL 2 RL, SHACL Core, OWL EL, RDF 1.2 (v0.2) and statement graphs (v0.3), proof-carrying answers (v0.4), four-valued verdicts (v0.5), and what comes next.
 ---
 # Roadmap
 
@@ -40,6 +40,8 @@ Each phase below is an OpenSpec change, implemented, archived (`openspec/changes
 | S2 tiramemsu alignment | `align-sg-with-tiramemsu` | `leanrdf-statements` | tiramemsu's `tm export --format sg-nt12` checked byte for byte; valid time as `tm:validFromMs`; `v0.3.1` | Done: 8 recorded tiramemsu exports decode and re-export exactly |
 | F1 Certificate check | `add-certificate-check` | `leanrdf-check` | A standalone checker with no search; five regimes under one theorem; a fixed verdict vocabulary with exit codes and JSON | Done: `checkRegime_sound`; a 21-certificate corpus |
 | F2 Certificate envelope | `add-certificate-envelope` | `leanrdf`, `leanrdf-check` | RDFC-1.0 and graph digests; certificate version 2 with an envelope that the checker verifies; `v0.4.0` | Done: the W3C rdf-canon suite passes (86 tests); `canonical_iso` |
+| F4 Inconsistency certificates | `add-inconsistency-certificates` | `leanrdf`, `leanrdf-owl`, `leanrdf-elpi`, `leanrdf-check` | Clash rules proven sound; INCONSISTENT (exit 4) before any entailment | Done: 12 OWL 2 RL clash rules; 27 W3C OWL 2 inconsistency tests decided |
+| F5 Countermodels | `add-countermodels` | `leanrdf`, `leanrdf-elpi`, `leanrdf-check` | Finite presentations, a verified model checker, REFUTED (exit 5) for simple, RDF and RDFS; `v0.5.0` | Done: `checkCountermodel_sound_rdfs`; no W3C positive test refuted |
 
 ## Proven, not just certified
 
@@ -48,7 +50,6 @@ A certificate proves that a found answer is right. It cannot prove that nothing 
 ## Next
 
 The agentic roadmap (`docs/ROADMAP.md`) continues with:
-- inconsistency certificates and countermodels (v0.5);
 - a write gate for agent memory (v0.6);
 - proof-carrying memory over tiramemsu (v0.7);
 - policy decisions for tool calls (v0.8).

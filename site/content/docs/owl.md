@@ -65,6 +65,34 @@ theorem family_entails : family.OWLEntails (Graph.singleton (T (ex "b") (ex "has
 
 To let Elpi find OWL certificates, saturate with `Owl.owlRules` (see [The Elpi search](/docs/elpi/)). `leanrdf-oxilite --profile owl` does exactly that.
 
+## Clash rules and inconsistency
+
+A graph with no OWL model entails every query, so a certified entailment from it says nothing. `LeanRDFOwl.Clash` has the twelve fixed-arity OWL 2 RL rules whose conclusion is `false`, as `ClashRule` values: a body and guards, no head.
+
+| Rule | Body |
+|---|---|
+| `eq-diff1` | `?x owl:sameAs ?y`, `?x owl:differentFrom ?y` |
+| `prp-irp` | `?p a owl:IrreflexiveProperty`, `?x ?p ?x` |
+| `prp-asyp` | `?p a owl:AsymmetricProperty`, `?x ?p ?y`, `?y ?p ?x` |
+| `prp-pdw` | `?p1 owl:propertyDisjointWith ?p2`, `?x ?p1 ?y`, `?x ?p2 ?y` |
+| `prp-npa1`, `prp-npa2` | a negative property assertion and the asserted pair |
+| `cls-nothing2` | `?x a owl:Nothing` |
+| `cls-com` | `?c1 owl:complementOf ?c2`, `?x a ?c1`, `?x a ?c2` |
+| `cls-maxc1`, `cls-maxqc1`, `cls-maxqc2` | a cardinality-zero restriction and a member with a value |
+| `cax-dw` | `?c1 owl:disjointWith ?c2`, `?x a ?c1`, `?x a ?c2` |
+
+Each is proven sound against `OWLCore`, which gained the conditions they need: disjoint classes and properties, complements, `owl:differentFrom`, irreflexive and asymmetric properties, negative property assertions, and cardinality zero. The test model still satisfies every condition.
+
+```lean
+theorem owlClashRules_sound : ∀ r ∈ owlClashRules, r.SoundIn OWLCore
+theorem checkClash_sound_owl (h : checkClash owlRules owlClashRules g c = .ok ()) :
+    ¬ ∃ I : DInterp, I.IsOWL ∧ I.Satisfies g
+theorem checkClash_explodes_owl (h : checkClash owlRules owlClashRules g c = .ok ()) (q : Graph) :
+    g.OWLEntails q
+```
+
+A clash certificate is an ordinary proof DAG plus `"clash": {"rule": "cax-dw", "premises": [0, 4, 2]}` ([format](/docs/certificates/#clash-certificates)). The tools look for a clash before anything else and report INCONSISTENT with exit 4. 27 of the W3C OWL 2 inconsistency tests are decided this way; the others need list rules, datatypes or reasoning outside OWL 2 RL, and are listed as not decided. The rules over lists (`eq-diff2`, `eq-diff3`, `prp-adp`, `cax-adc`) and `dt-not-type` are not implemented.
+
 ## Classification
 
 `leanrdf-classify ONTOLOGY` saturates under `owlELRules` and certifies every derived subsumption between named classes. In Lean, `LeanRDF.Classify.classify g` returns the list of `Edge`s (`sub`, `sup`, `status`), and `render` prints them. The EL patterns it understands:

@@ -1,0 +1,5 @@
+_:fc1e0fe5c97bf69bf0dbbc40a580fe3b <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .
+<http://example.org/parentOf> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<http://example.org/parentOf> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#AsymmetricProperty> .
+<http://example.org/Peter> <http://example.org/parentOf> <http://example.org/Stewie> .
+<http://example.org/Stewie> <http://example.org/parentOf> <http://example.org/Peter> .

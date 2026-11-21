@@ -1,0 +1,7 @@
+LeanRDF check: 5 data triples, a clash certificate
+Certificate: 5 nodes
+Data digest: sha256:c3aa3570d786b974a49a8e58ee6e7f19ee63f63b7a68b59c9573700f9d6f9173
+Envelope: verified (data, query, rules and regime match)
+Clash: cax-dw
+Verdict: INCONSISTENT. The verified checker accepted the clash certificate under owl: by checkClash_sound_owl, the data has no OWL model, so every query follows from it.
+# exit 4

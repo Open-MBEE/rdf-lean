@@ -20,11 +20,12 @@ private def contains (s sub : String) : Bool := (s.splitOn sub).length > 1
     expect (code == 0) s!"{q}: exit {code}\n{out}"
     expect (contains out "Verdict: ENTAILED") s!"{q}: no ENTAILED verdict"
 
--- @tg: verifies:: [[openspec:demo#Exit codes and verdicts#Not derived is not non-entailment]] {level: e2e}
+/- `ex:tom rdf:type ex:Dog` is not derived, and since `add-countermodels` a checked countermodel
+refutes it: REFUTED, exit 5, never "not entailed" without a checked model. -/
 #eval show IO Unit from do
   let (code, out) ← runOn "query-tom-dog.nt"
-  expect (code == 1) s!"exit {code}"
-  expect (contains out "NOT DERIVED" && contains out "not a claim of non-entailment") out
+  expect (code == 5) s!"exit {code}"
+  expect (contains out "Verdict: REFUTED" && contains out "checkCountermodel_sound_rdfs") out
   expect (!contains out "ENTAILED." && !contains out "not entailed") out
 
 -- @tg: verifies:: [[openspec:demo#Exit codes and verdicts#A rejected certificate exits 2]] {level: e2e}

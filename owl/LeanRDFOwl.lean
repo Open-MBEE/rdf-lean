@@ -5,3 +5,5 @@ import LeanRDFOwl.Rules
 import LeanRDFOwl.Soundness
 import LeanRDFOwl.EL
 import LeanRDFOwl.ELSoundness
+import LeanRDFOwl.Clash
+import LeanRDFOwl.ClashSoundness

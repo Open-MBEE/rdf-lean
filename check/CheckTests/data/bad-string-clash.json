@@ -1,0 +1,23 @@
+{"version": 2,
+ "nodes":
+ [{"rule": "fact",
+   "premises": [],
+   "id": 0,
+   "conclusion":
+   ["<http://example.org/a>", "<http://example.org/label>", "\"a\\u0000b\""]}],
+ "mapping": [],
+ "goals": [],
+ "envelope":
+ {"toolchain": "leanprover/lean4:v4.35.0",
+  "theorem": "checkClash_sound_rdfs",
+  "rules":
+  {"id": "rdfs",
+   "digest":
+   "sha256:3f141744e87a45ff3f53143c7ec7108de3bd0f6393c030b72d5b1bb1c3a3e9d0"},
+  "regime": "rdfs",
+  "query":
+  "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "graph":
+  "sha256:ebb60450b7fb50de658cb333bd7598fbd227ee1cb768f5a6bd7d1e32c4949d86",
+  "checker": "leanrdf-elpi 0.4.0"},
+ "clash": {"rule": "d-clash-string", "premises": [0]}}

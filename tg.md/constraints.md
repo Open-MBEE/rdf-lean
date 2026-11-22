@@ -177,6 +177,12 @@ The W3C N-Triples suite marks `_::a` and `_:abc:def` as negative syntax tests, a
 - source:: w3c/rdf-tests `rdf/rdf11/rdf-n-triples`, `nt-syntax-bad-bnode-01` and `-02`, commit `d01b141` (2026-10-28)
 - constrains:: [[decisions#Recursive-descent N-Triples parser]] {strength: must}
 
+## Lean toolchain 4.35
+
+lean-elpi v0.3.3 and CertifyingDatalog both pin `leanprover/lean4:v4.35.0`, and LeanRDF pinned the same toolchain up to release 0.5.0. Replaced by [[constraints#Lean toolchain 4.36]]; kept because the archived changes cite it.
+
+- source:: `lean-toolchain` of lean-elpi v0.3.3 and of knowsys/CertifyingDatalog (main, 2026-10-29)
+
 ## Lean toolchain 4.36
 
 Every LeanRDF package pins `leanprover/lean4:v4.36.0`. lean-elpi v0.3.3 pins v4.35.0 and builds unchanged on v4.36.0, so the packages share one toolchain.
